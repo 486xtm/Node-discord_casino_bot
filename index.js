@@ -49,40 +49,108 @@ const rouletteWheel = {
   36: "red",
 };
 
+// Define commands
+const commands = [
+  {
+    name: 'roulette',
+    description: 'Play a game of roulette. Bet on a number (0-36) or color (red/black)',
+    options: [
+      {
+        name: 'bet',
+        description: 'Your bet (number 0-36 or color red/black)',
+        type: 3, // STRING type
+        required: true,
+      }
+    ]
+  },
+  {
+    name: 'ping',
+    description: 'Check bot latency'
+  },
+  {
+    name: 'help',
+    description: 'Show available commands'
+  }
+];
+
+// Deploy commands
+const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+
+(async () => {
+  try {
+    console.log('Started refreshing global commands...');
+    await rest.put(
+      Routes.applicationCommands(process.env.CLIENT_ID),
+      { body: commands }
+    );
+    console.log('Successfully reloaded global commands.');
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  client.user.setPresence({
+    activities: [{ name: '/help', type: 0 }],
+    status: 'online',
+  });
 });
 
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
+// Handle slash commands
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
 
-  if (message.content.toLowerCase().startsWith(`${PREFIX}roulette`)) {
-    await startGame(message);
+  switch (interaction.commandName) {
+    case 'roulette':
+      await handleRoulette(interaction);
+      break;
+    
+    case 'ping':
+      await interaction.reply({
+        content: `🏓 Pong!\nLatency: ${client.ws.ping}ms`,
+        ephemeral: true
+      });
+      break;
+    
+    case 'help':
+      const helpEmbed = {
+        color: 0x0099FF,
+        title: '🎮 Bot Commands',
+        fields: [
+          {
+            name: '/roulette [bet]',
+            value: 'Play roulette! Bet on a number (0-36) or color (red/black)'
+          },
+          {
+            name: '/ping',
+            value: 'Check bot latency'
+          },
+          {
+            name: '/help',
+            value: 'Show this help message'
+          }
+        ],
+        footer: {
+          text: 'Have fun playing!'
+        }
+      };
+      
+      await interaction.reply({
+        embeds: [helpEmbed],
+        ephemeral: true
+      });
+      break;
   }
 });
 
-async function startGame(message) {
-  await message.channel.send(
-    "Welcome to Roulette! You can bet on a number (0-36), red, or black."
-  );
-  await message.channel.send(
-    "Type your bet Color or Number(0-36). Example: `23` or `red` or  `black` "
-  );
+async function handleRoulette(interaction) {
+  await interaction.reply('🎲 Welcome to Roulette! Processing your bet...');
+  
+  const bet = interaction.options.getString('bet').toLowerCase().trim();
+  let betColor = null;
+  let betNumber = null;
 
-  const filter = (response) => response.author.id === message.author.id;
-  const collected = await message.channel
-    .awaitMessages({ filter, max: 1, time: 30000, errors: ["time"] })
-    .catch(() => {
-      message.channel.send("You did not respond in time!");
-    });
-    if (!collected) return;
-    
-    const bet = collected.first().content.toLowerCase().trim();
-    let betColor = null;
-    let betNumber = null;
-    console.log("==========>", bet);
-    
   if (bet === "red" || bet === "black") {
     betColor = bet;
   } else {
@@ -90,46 +158,29 @@ async function startGame(message) {
     if (!isNaN(num) && num >= 0 && num <= 36) {
       betNumber = num;
     } else {
-      await message.channel.send(
-        "Invalid bet! Please bet on a number (0-36) or a color (red/black)."
+      await interaction.editReply(
+        "❌ Invalid bet! Please bet on a number (0-36) or a color (red/black)."
       );
       return;
     }
   }
 
-  // Spin the wheel
   const resultNumber = Math.floor(Math.random() * 37);
   const resultColor = rouletteWheel[resultNumber];
 
-  await message.channel.send(
-    `The ball landed on ${resultNumber} (${resultColor})!`
-  );
+  let resultMessage = `🎲 The ball landed on ${resultNumber} (${resultColor})!\n\n`;
 
-  // Determine outcome
   if (betNumber !== null) {
-    if (betNumber === resultNumber) {
-      await message.channel.send(
-        `Congratulations! You win! The number ${resultNumber} was selected.`
-      );
-    } else {
-      await message.channel.send(
-        `Sorry, you lose! The number was ${resultNumber}.`
-      );
-    }
-  } else if (betColor !== null) {
-    if (betColor === resultColor) {
-      await message.channel.send(
-        `Congratulations! You win! The ball landed on a ${resultColor} number.`
-      );
-    } else {
-      await message.channel.send(
-        `Sorry, you lose! The ball landed on a ${resultColor} number.`
-      );
-    }
+    resultMessage += betNumber === resultNumber
+      ? `🎉 Congratulations! You win! The number ${resultNumber} was selected.`
+      : `😔 Sorry, you lose! The number was ${resultNumber}.`;
+  } else {
+    resultMessage += betColor === resultColor
+      ? `🎉 Congratulations! You win! The ball landed on a ${resultColor} number.`
+      : `😔 Sorry, you lose! The ball landed on a ${resultColor} number.`;
   }
+
+  await interaction.editReply(resultMessage);
 }
 
-// Run the bot
-client.login(
-  process.env.BOT_TOKEN
-); // Replace with your bot token
+client.login(process.env.BOT_TOKEN); // Replace with your bot token
