@@ -5,8 +5,92 @@ const cardValues = {
 
 const blackjackCommand = {
   name: 'blackjack',
-  description: 'Play a game of Blackjack against the dealer'
+  description: 'Play a game of Blackjack against the dealer',
+  options: [
+    {
+      name: 'play',
+      description: 'Play a game of Blackjack',
+      type: 1, // Subcommand
+      options: [
+        {
+          name: 'bet',
+          description: 'Amount to bet (default: 100)',
+          type: 4, // INTEGER type
+          required: false,
+          min_value: 10,
+          max_value: 1000
+        }
+      ]
+    },
+    {
+      name: 'help',
+      description: 'Show detailed rules and information about Blackjack',
+      type: 1 // Subcommand
+    }
+  ]
 };
+
+function getBlackjackHelp() {
+  return {
+    name: 'Blackjack',
+    description: 'A classic casino card game where you compete against the dealer to get closest to 21 without going over.',
+    rules: [
+      '1. Place your bet (10-1000 chips)',
+      '2. You and the dealer each receive 2 cards',
+      '3. Your cards are both face-up, dealer has one face-up and one face-down',
+      '4. Cards 2-10 are worth face value',
+      '5. J, Q, K are worth 10',
+      '6. Ace is worth 11 or 1 (automatically adjusted to help you)',
+      '7. You can Hit (take another card) or Stand (keep current hand)',
+      '8. Dealer must hit on 16 and below, stand on 17 and above'
+    ],
+    payouts: [
+      'Win: 1:1 (double your bet)',
+      'Blackjack (21 with first two cards): 3:2',
+      'Lose: Lose your bet',
+      'Tie: Bet is returned'
+    ],
+    tips: [
+      '💡 Always hit on 11 or below',
+      '💡 Stand on 17 and above',
+      '💡 Consider the dealer\'s face-up card when deciding',
+      '💡 Remember: dealer must hit on 16 and below'
+    ]
+  };
+}
+
+async function showBlackjackHelp(interaction) {
+  const help = getBlackjackHelp();
+  
+  await interaction.reply({
+    embeds: [{
+      title: `🎲 ${help.name}`,
+      description: help.description,
+      color: 0x00FF00,
+      fields: [
+        {
+          name: '📋 Rules',
+          value: help.rules.join('\n'),
+          inline: false
+        },
+        {
+          name: '💰 Payouts',
+          value: help.payouts.join('\n'),
+          inline: false
+        },
+        {
+          name: '💡 Tips',
+          value: help.tips.join('\n'),
+          inline: false
+        }
+      ],
+      footer: {
+        text: 'Use /blackjack play [bet] to start playing!'
+      }
+    }],
+    ephemeral: true
+  });
+}
 
 function createDeck() {
   const deck = [];
@@ -38,6 +122,13 @@ function calculateHand(hand) {
 }
 
 async function handleBlackjack(interaction) {
+  const subcommand = interaction.options.getSubcommand();
+  
+  if (subcommand === 'help') {
+    return await showBlackjackHelp(interaction);
+  }
+
+  const betAmount = interaction.options.getInteger('bet') || 100;
   const deck = createDeck();
   const playerHand = [deck.pop(), deck.pop()];
   const dealerHand = [deck.pop(), deck.pop()];

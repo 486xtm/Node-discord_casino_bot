@@ -3,7 +3,29 @@ const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 const threeCardPokerCommand = {
   name: 'threecardpoker',
-  description: 'Play a game of Three Card Poker against the dealer'
+  description: 'Play a game of Three Card Poker against the dealer',
+  options: [
+    {
+      name: 'play',
+      description: 'Start a new game of Three Card Poker',
+      type: 1, // Subcommand
+      options: [
+        {
+          name: 'bet',
+          description: 'Amount to bet (default: 100)',
+          type: 4, // INTEGER type
+          required: false,
+          min_value: 10,
+          max_value: 1000
+        }
+      ]
+    },
+    {
+      name: 'help',
+      description: 'Show detailed rules and information about Three Card Poker',
+      type: 1 // Subcommand
+    }
+  ]
 };
 
 function createDeck() {
@@ -90,7 +112,51 @@ function determineWinner(playerHand, dealerHand) {
   }
 }
 
+async function showThreeCardPokerHelp(interaction) {
+  const help = getThreeCardPokerHelp();
+  
+  await interaction.reply({
+    embeds: [{
+      title: `🎲 ${help.name}`,
+      description: help.description,
+      color: 0x00FF00,
+      fields: [
+        {
+          name: '📋 Rules',
+          value: help.rules.join('\n'),
+          inline: false
+        },
+        {
+          name: '🏆 Hand Rankings',
+          value: help.handRankings.join('\n'),
+          inline: false
+        },
+        {
+          name: '💰 Payouts',
+          value: help.payouts.join('\n'),
+          inline: false
+        },
+        {
+          name: '💡 Tips',
+          value: help.tips.join('\n'),
+          inline: false
+        }
+      ],
+      footer: {
+        text: 'Use /threecardpoker [bet] to start playing!'
+      }
+    }],
+    ephemeral: true
+  });
+}
+
 async function handleThreeCardPoker(interaction) {
+  const subcommand = interaction.options.getSubcommand(false);
+  
+  if (subcommand === 'help') {
+    return showThreeCardPokerHelp(interaction);
+  }
+  
   await interaction.reply({
     embeds: [{
       title: '🎲 Three Card Poker',
@@ -113,13 +179,15 @@ async function handleThreeCardPoker(interaction) {
         type: 2,
         custom_id: 'play',
         label: 'Play',
-        style: 1
+        emoji: '✅',  // Green checkmark
+        style: 2     // PRIMARY (Blue)
       },
       {
         type: 2,
         custom_id: 'fold',
         label: 'Fold',
-        style: 4
+        emoji: '❌',  // Red X
+        style: 2     // DANGER (Red)
       }
     ]
   };
@@ -171,7 +239,40 @@ async function handleThreeCardPoker(interaction) {
   }
 }
 
+function getThreeCardPokerHelp() {
+  return {
+    name: 'Three Card Poker',
+    description: 'A casino poker variant played against the dealer with three cards.',
+    rules: [
+      '1. Place your bet (10-1000 chips)',
+      '2. You and the dealer each receive 3 cards',
+      '3. After seeing your cards, choose to Play or Fold',
+      '4. If you fold, you lose your bet',
+      '5. If you play, your hand is compared with the dealer\'s'
+    ],
+    handRankings: [
+      '🏆 Straight Flush - Three sequential cards of the same suit (e.g., 7♠ 8♠ 9♠)',
+      '👑 Three of a Kind - Three cards of the same rank (e.g., K♠ K♥ K♦)',
+      '🌟 Flush - Three cards of the same suit (e.g., 3♥ 7♥ J♥)',
+      '📈 Straight - Three sequential cards (e.g., 5♣ 6♦ 7♠)',
+      '👥 Pair - Two cards of the same rank (e.g., 9♣ 9♥ 4♦)',
+      '👤 High Card - Highest single card in hand'
+    ],
+    payouts: [
+      'Win: 1:1 (double your bet)',
+      'Lose: Lose your bet',
+      'Tie: Bet is returned'
+    ],
+    tips: [
+      '💡 Consider playing with any pair or better',
+      '💡 Fold weak hands to minimize losses',
+      '💡 A high card of Queen or better is often playable'
+    ]
+  };
+}
+
 module.exports = {
   threeCardPokerCommand,
-  handleThreeCardPoker
+  handleThreeCardPoker,
+  getThreeCardPokerHelp
 };

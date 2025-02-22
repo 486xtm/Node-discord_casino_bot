@@ -42,32 +42,39 @@ client.on('interactionCreate', async interaction => {
     case 'help':
       const helpEmbed = {
         color: 0x0099FF,
-        title: '🎮 Bot Commands',
+        title: '🎮 Casino Royale - Game Commands',
+        description: 'Welcome to Casino Royale! Here are all the available games and commands:',
         fields: [
           {
-            name: '/roulette [bet]',
-            value: 'Play roulette! Bet on a number (0-36) or color (red/black)'
+            name: '🎲 Roulette',
+            value: '`/roulette play bet:[number/color] amount:[optional]`\n`/roulette help`\nBet on numbers (0-36) or colors (red/black). Win up to 35x your bet!',
+            inline: false
           },
           {
-            name: '/blackjack',
-            value: 'Play a game of Blackjack against the dealer'
+            name: '🃏 Blackjack',
+            value: '`/blackjack play bet:[amount]`\n`/blackjack help`\nPlay against the dealer - get closer to 21 than them without going over!',
+            inline: false
           },
           {
-            name: '/ping',
-            value: 'Check bot latency'
+            name: '🎴 Three Card Poker',
+            value: '`/threecardpoker play bet:[amount]`\n`/threecardpoker help`\nPlay poker with three cards - compete against the dealer for the best hand!',
+            inline: false
           },
           {
-            name: '/threecardpoker',
-            value: 'Play a game of Three Card Poker'
+            name: '🎯 Baccarat',
+            value: '`/baccarat play bet:[player/banker/tie] amount:[optional]`\n`/baccarat help`\nBet on Player, Banker, or Tie in this elegant casino classic!',
+            inline: false
           },
           {
-            name: '/help',
-            value: 'Show this help message'
+            name: '🛠️ Utility Commands',
+            value: '`/ping` - Check bot latency\n`/help` - Show this help message',
+            inline: false
           }
         ],
         footer: {
-          text: 'Have fun playing!'
-        }
+          text: '💡 Tip: Use the help command for each game (e.g., /blackjack help) to see detailed rules and strategies!'
+        },
+        timestamp: new Date()
       };
       
       await interaction.reply({
