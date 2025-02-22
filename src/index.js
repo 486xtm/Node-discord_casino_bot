@@ -57,6 +57,10 @@ client.on('interactionCreate', async interaction => {
             value: 'Check bot latency'
           },
           {
+            name: '/threecardpoker',
+            value: 'Play a game of Three Card Poker'
+          },
+          {
             name: '/help',
             value: 'Show this help message'
           }

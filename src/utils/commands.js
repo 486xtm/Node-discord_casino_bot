@@ -1,10 +1,12 @@
 const { REST, Routes } = require('discord.js');
 const roulette = require('../commands/roulette');
 const blackjack = require('../commands/blackjack');
+const { threeCardPokerCommand, handleThreeCardPoker } = require('../commands/threeCardPoker');
 
 const commands = [
   roulette.command,
   blackjack.command,
+  threeCardPokerCommand,
   {
     name: 'ping',
     description: 'Check bot latency'
@@ -17,7 +19,8 @@ const commands = [
 
 const commandHandlers = {
   roulette: roulette.handler,
-  blackjack: blackjack.handler
+  blackjack: blackjack.handler,
+  threecardpoker: handleThreeCardPoker
 };
 
 async function deployCommands(token, clientId) {
