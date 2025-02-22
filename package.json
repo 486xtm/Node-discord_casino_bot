@@ -1,0 +1,20 @@
+{
+  "name": "discord-roulette-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot that simulates a roulette game.",
+  "main": "index.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
+  }
+}
