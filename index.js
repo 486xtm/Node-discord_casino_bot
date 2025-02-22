@@ -70,6 +70,10 @@ const commands = [
   {
     name: 'help',
     description: 'Show available commands'
+  },
+  {
+    name: 'blackjack',
+    description: 'Play a game of Blackjack against the dealer'
   }
 ];
 
@@ -141,6 +145,9 @@ client.on('interactionCreate', async interaction => {
         ephemeral: true
       });
       break;
+    case 'blackjack':
+      await handleBlackjack(interaction);
+      break;
   }
 });
 
@@ -181,6 +188,154 @@ async function handleRoulette(interaction) {
   }
 
   await interaction.editReply(resultMessage);
+}
+
+
+// Add these Blackjack helper functions
+const cardValues = {
+  '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+  '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 11
+};
+
+function createDeck() {
+  const deck = [];
+  for (const card of Object.keys(cardValues)) {
+    deck.push(card, card); // Two of each card
+  }
+  // Shuffle deck
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function calculateHand(hand) {
+  let value = 0;
+  let aceCount = 0;
+  
+  for (const card of hand) {
+    value += cardValues[card];
+    if (card === 'A') aceCount++;
+  }
+  
+  while (value > 21 && aceCount) {
+    value -= 10;
+    aceCount--;
+  }
+  
+  return value;
+}
+
+// Add this new function to handle Blackjack games
+async function handleBlackjack(interaction) {
+  const deck = createDeck();
+  const playerHand = [deck.pop(), deck.pop()];
+  const dealerHand = [deck.pop(), deck.pop()];
+  
+  await interaction.reply({
+    content: `🎲 Welcome to Blackjack!\nYour hand: ${playerHand.join(', ')} (Total: ${calculateHand(playerHand)})\nDealer's face-up card: ${dealerHand[0]}`,
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            custom_id: 'hit',
+            label: 'Hit',
+            style: 1,
+          },
+          {
+            type: 2,
+            custom_id: 'stand',
+            label: 'Stand',
+            style: 1,
+          }
+        ]
+      }
+    ]
+  });
+
+  const filter = i => {
+    return i.user.id === interaction.user.id && ['hit', 'stand'].includes(i.customId);
+  };
+
+  const gameState = {
+    deck,
+    playerHand,
+    dealerHand,
+    gameEnded: false
+  };
+
+  // Create collector for button interactions
+  const collector = interaction.channel.createMessageComponentCollector({ 
+    filter, 
+    time: 30000 
+  });
+
+  collector.on('collect', async i => {
+    if (gameState.gameEnded) return;
+
+    if (i.customId === 'hit') {
+      gameState.playerHand.push(gameState.deck.pop());
+      const playerTotal = calculateHand(gameState.playerHand);
+
+      if (playerTotal > 21) {
+        gameState.gameEnded = true;
+        collector.stop();
+        await i.update({
+          content: `Your hand: ${gameState.playerHand.join(', ')} (Total: ${playerTotal})\nBust! You lose! 😔`,
+          components: []
+        });
+        return;
+      }
+
+      await i.update({
+        content: `Your hand: ${gameState.playerHand.join(', ')} (Total: ${playerTotal})\nDealer's face-up card: ${gameState.dealerHand[0]}`
+      });
+    }
+
+    if (i.customId === 'stand') {
+      gameState.gameEnded = true;
+      collector.stop();
+      
+      // Dealer's turn
+      let dealerTotal = calculateHand(gameState.dealerHand);
+      let message = `Dealer's hand: ${gameState.dealerHand.join(', ')} (Total: ${dealerTotal})\n`;
+
+      while (dealerTotal < 17) {
+        gameState.dealerHand.push(gameState.deck.pop());
+        dealerTotal = calculateHand(gameState.dealerHand);
+        message += `Dealer draws: ${gameState.dealerHand.join(', ')} (Total: ${dealerTotal})\n`;
+      }
+
+      const playerTotal = calculateHand(gameState.playerHand);
+
+      if (dealerTotal > 21) {
+        message += `Dealer busts! You win! 🎉`;
+      } else if (playerTotal > dealerTotal) {
+        message += `You win! 🎉`;
+      } else if (playerTotal < dealerTotal) {
+        message += `Dealer wins! 😔`;
+      } else {
+        message += `It's a tie! 🤝`;
+      }
+
+      await i.update({
+        content: message,
+        components: []
+      });
+    }
+  });
+
+  collector.on('end', async (collected, reason) => {
+    if (reason === 'time' && !gameState.gameEnded) {
+      await interaction.editReply({
+        content: 'Game timed out! Please start a new game.',
+        components: []
+      });
+    }
+  });
 }
 
 client.login(process.env.BOT_TOKEN); // Replace with your bot token
