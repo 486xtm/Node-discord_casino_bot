@@ -1,4 +1,5 @@
 const { formatHand } = require("../../utils/utils");
+const { beforeStart, threeCardPokerHelp } = require("../../utils/embeds");
 const suits = ["D", "H", "S", "C"];
 const ranks = [
   "2",
@@ -128,7 +129,7 @@ function determineWinner(playerHand, dealerHand) {
 }
 
 async function showThreeCardPokerHelp(interaction) {
-  const help = getThreeCardPokerHelp();
+  const help = threeCardPokerHelp;
 
   await interaction.reply({
     embeds: [
@@ -214,9 +215,18 @@ async function handleThreeCardPoker(interaction) {
   await interaction.editReply({
     embeds: [
       {
+        author: {
+          name: interaction.user.username,
+          icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
+        },
         title: "🎲 Three Card Poker",
         description: `Your hand: ${playerHandStr}\nDealer's hand: ${dealerHandStr}\n\nWould you like to play or fold?`,
         color: 0x00ff00,
+        timestamp: new Date(),
+        footer: {
+          text: "🎲 Casino Royale",
+          icon_url: interaction.client.user.displayAvatarURL(),
+        },
       },
     ],
     components: [row],
@@ -233,9 +243,18 @@ async function handleThreeCardPoker(interaction) {
       await interaction.editReply({
         embeds: [
           {
+            author: {
+              name: interaction.user.username,
+              icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
+            },
             title: "🎲 Three Card Poker - Game Over",
             description: "You folded! Dealer wins by default.",
             color: 0xff0000,
+            timestamp: new Date(),
+            footer: {
+              text: "🎲 Casino Royale",
+              icon_url: interaction.client.user.displayAvatarURL(),
+            },
           },
         ],
         components: [],
@@ -247,11 +266,20 @@ async function handleThreeCardPoker(interaction) {
     await interaction.editReply({
       embeds: [
         {
+          author: {
+            name: interaction.user.username,
+            icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
+          },
           title: "🎲 Three Card Poker - Game Over",
           description: `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
             dealerHand
           )}\n\n${result}`,
           color: result.includes("win") ? 0x00ff00 : 0xff0000,
+          timestamp: new Date(),
+          footer: {
+            text: "🎲 Casino Royale",
+            icon_url: interaction.client.user.displayAvatarURL(),
+          },
         },
       ],
       components: [],
@@ -269,39 +297,6 @@ async function handleThreeCardPoker(interaction) {
       components: [],
     });
   }
-}
-
-function getThreeCardPokerHelp() {
-  return {
-    name: "Three Card Poker",
-    description:
-      "A casino poker variant played against the dealer with three cards.",
-    rules: [
-      "1. Place your bet (10-1000 chips)",
-      "2. You and the dealer each receive 3 cards",
-      "3. After seeing your cards, choose to Play or Fold",
-      "4. If you fold, you lose your bet",
-      "5. If you play, your hand is compared with the dealer's",
-    ],
-    handRankings: [
-      "🏆 Straight Flush - Three sequential cards of the same suit (e.g., 7♠ 8♠ 9♠)",
-      "👑 Three of a Kind - Three cards of the same rank (e.g., K♠ K♥ K♦)",
-      "🌟 Flush - Three cards of the same suit (e.g., 3♥ 7♥ J♥)",
-      "📈 Straight - Three sequential cards (e.g., 5♣ 6♦ 7♠)",
-      "👥 Pair - Two cards of the same rank (e.g., 9♣ 9♥ 4♦)",
-      "👤 High Card - Highest single card in hand",
-    ],
-    payouts: [
-      "Win: 1:1 (double your bet)",
-      "Lose: Lose your bet",
-      "Tie: Bet is returned",
-    ],
-    tips: [
-      "💡 Consider playing with any pair or better",
-      "💡 Fold weak hands to minimize losses",
-      "💡 A high card of Queen or better is often playable",
-    ],
-  };
 }
 
 module.exports = {

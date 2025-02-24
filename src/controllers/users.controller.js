@@ -6,14 +6,12 @@ const getInfoByUserName = async (username) => {
       return user; // Returns the user object or null if not found
     }
     return null; // Return null if username is not provided
-  } catch (err) {
-    console.error("500 error:", err); // Log the error for debugging
+  } catch {
+    console.error("500 error"); // Log the error for debugging
   }
 };
 const depositTurns = async (amount, username) => {
   try {
-    const user = await User.findOne({ aimName: username });
-    if (user.bankedTurn < amount) return user;
     const updatedUser = await User.findOneAndUpdate(
       { aimName: username },
       {
@@ -31,8 +29,6 @@ const depositTurns = async (amount, username) => {
 };
 const withDrawTurns = async (amount, username) => {
   try {
-    const user = await User.findOne({ aimName: username });
-    if (user.casinoTurn < amount) return user;
     const updatedUser = await User.findOneAndUpdate(
       { aimName: username },
       {

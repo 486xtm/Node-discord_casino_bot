@@ -33,7 +33,6 @@ async function deployCommands(token, clientId) {
   const rest = new REST({ version: '10' }).setToken(token);
 
   try {
-    console.log('Started refreshing global commands...');
     await rest.put(
       Routes.applicationCommands(clientId),
       { body: commands }

@@ -1,4 +1,5 @@
 const { formatHand } = require("../../utils/utils");
+const { beforeStart, blackjackHelp } = require("../../utils/embeds");
 const {
   getInfoByUserName,
   updateCasinoTurn,
@@ -31,11 +32,11 @@ const blackjackCommand = {
       options: [
         {
           name: "bet",
-          description: "Amount to bet (100 - 1000) (default: 100)",
+          description: "Amount to bet (100 - 10000) (default: 100)",
           type: 4, // INTEGER type
-          required: false,
+          required: true,
           min_value: 100,
-          max_value: 1000,
+          max_value: 10000,
         },
       ],
     },
@@ -47,38 +48,8 @@ const blackjackCommand = {
   ],
 };
 
-function getBlackjackHelp() {
-  return {
-    name: "Blackjack",
-    description:
-      "A classic casino card game where you compete against the dealer to get closest to 21 without going over.",
-    rules: [
-      "1. Place your bet (10-1000 chips)",
-      "2. You and the dealer each receive 2 cards",
-      "3. Your cards are both face-up, dealer has one face-up and one face-down",
-      "4. Cards 2-10 are worth face value",
-      "5. J, Q, K are worth 10",
-      "6. Ace is worth 11 or 1 (automatically adjusted to help you)",
-      "7. You can Hit (take another card) or Stand (keep current hand)",
-      "8. Dealer must hit on 16 and below, stand on 17 and above",
-    ],
-    payouts: [
-      "Win: 1:1 (double your bet)",
-      "Blackjack (21 with first two cards): 3:2",
-      "Lose: Lose your bet",
-      "Tie: Bet is returned",
-    ],
-    tips: [
-      "💡 Always hit on 11 or below",
-      "💡 Stand on 17 and above",
-      "💡 Consider the dealer's face-up card when deciding",
-      "💡 Remember: dealer must hit on 16 and below",
-    ],
-  };
-}
-
 async function showBlackjackHelp(interaction) {
-  const help = getBlackjackHelp();
+  const help = blackjackHelp;
 
   await interaction.reply({
     embeds: [
@@ -159,27 +130,7 @@ async function handleBlackjack(interaction) {
   try {
     const userInfo = await getInfoByUserName(interaction.user.username);
     if (!userInfo) {
-      return await interaction.reply({
-        embeds: [
-          {
-            title: "⚠️ Account Required",
-            description:
-              "To play Blackjack, you need to have a War Grounds account linked to your Discord username.",
-            fields: [
-              {
-                name: "How to Start Playing",
-                value:
-                  "1️⃣ Visit [War Grounds](https://war-grounds.com)\n2️⃣ Create an account or sign in\n3️⃣ Add your Discord username in your profile\n4️⃣ Return here to play!",
-              },
-            ],
-            color: 0xffa500, // Orange color
-            footer: {
-              text: "🎮 Join War Grounds to add info!",
-            },
-          },
-        ],
-        ephemeral: true,
-      });
+      return await interaction.reply(beforeStart);
     }
 
     if (userInfo.casinoTurn < betAmount) {
@@ -286,6 +237,7 @@ async function handleBlackjack(interaction) {
         if (playerTotal > 21) {
           gameState.gameEnded = true;
           collector.stop();
+          const updatedUser = await updateCasinoTurn(-betAmount, interaction.user.username);
           await i.update({
             embeds: [
               {
@@ -303,7 +255,7 @@ async function handleBlackjack(interaction) {
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
                   )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
-                  `Bust! You lose! 😔`,
+                  `Bust! You lost ${betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -372,13 +324,16 @@ async function handleBlackjack(interaction) {
         let color = 0xffff00; // Yellow for tie
 
         if (dealerTotal > 21) {
-          resultMessage = `Dealer busts! You win! 🎉`;
+          const updatedUser = await updateCasinoTurn(betAmount, interaction.user.username);
+          resultMessage = `Dealer busts! You got ${betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00; // Green for win
         } else if (playerTotal > dealerTotal) {
-          resultMessage = `You win! 🎉`;
+          const updatedUser = await updateCasinoTurn(betAmount, interaction.user.username);
+          resultMessage = `You win! You got ${betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00;
         } else if (playerTotal < dealerTotal) {
-          resultMessage = `Dealer wins! 😔`;
+          const updatedUser = await updateCasinoTurn(-betAmount, interaction.user.username);
+          resultMessage = `Dealer wins! You lost ${betAmount} Turns! 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0xff0000; // Red for loss
         } else {
           resultMessage = `It's a tie! 🤝`;
@@ -419,6 +374,7 @@ async function handleBlackjack(interaction) {
 
     collector.on("end", async (collected, reason) => {
       if (reason === "time" && !gameState.gameEnded) {
+        const updatedUser = await updateCasinoTurn(-(Math.floor(betAmount / 2)), interaction.user.username);
         await interaction.editReply({
           embeds: [
             {
@@ -427,7 +383,7 @@ async function handleBlackjack(interaction) {
                 icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
               },
               title: "🎲 Blackjack - Timeout",
-              description: "Game timed out! Please start a new game.",
+              description: `Game timed out! Please start a new game.\n\nYou lost half of your bet.\n**Current Balance:** ${updatedUser.casinoTurn}`,
               color: 0xff0000,
               timestamp: new Date(),
               footer: {

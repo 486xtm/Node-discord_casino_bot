@@ -1,4 +1,5 @@
 const { getInfoByUserName, withDrawTurns, depositTurns } = require('../../controllers/users.controller');
+const { beforeStart } = require('../../utils/embeds');
 
 const withdrawDepositCommand = {
   name: 'balance',
@@ -47,27 +48,7 @@ async function handleWithdrawDeposit(interaction) {
     const userInfo = await getInfoByUserName(interaction.user.username);
     
     if (!userInfo) {
-      return await interaction.reply({
-        embeds: [
-          {
-            title: "⚠️ Account Required",
-            description:
-              "To play Blackjack, you need to have a War Grounds account linked to your Discord username.",
-            fields: [
-              {
-                name: "How to Start Playing",
-                value:
-                  "1️⃣ Visit [War Grounds](https://war-grounds.com)\n2️⃣ Create an account or sign in\n3️⃣ Add your Discord username in your profile\n4️⃣ Return here to play!",
-              },
-            ],
-            color: 0xffa500, // Orange color
-            footer: {
-              text: "🎮 Join War Grounds to add info!",
-            },
-          },
-        ],
-        ephemeral: true,
-      });
+      return await interaction.reply(beforeStart);
     }
 
     switch (subcommand) {

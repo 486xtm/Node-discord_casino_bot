@@ -1,10 +1,42 @@
 const { formatHand } = require('../../utils/utils');
+const { beforeStart, baccaratHelp } = require('../../utils/embeds');
 const suits = ['H', 'D', 'C', 'S']; // Hearts, Diamonds, Clubs, Spades
 const cardValues = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
   '10': 0, 'J': 0, 'Q': 0, 'K': 0, 'A': 1
 };
-
+async function showBaccaratHelp(interaction) {
+  const help = baccaratHelp;
+  
+  await interaction.reply({
+    embeds: [{
+      title: `🎲 ${help.name}`,
+      description: help.description,
+      color: 0x00FF00,
+      fields: [
+        {
+          name: '📋 Rules',
+          value: help.rules.join('\n'),
+          inline: false
+        },
+        {
+          name: '💰 Payouts',
+          value: help.payouts.join('\n'),
+          inline: false
+        },
+        {
+          name: '💡 Tips',
+          value: help.tips.join('\n'),
+          inline: false
+        }
+      ],
+      footer: {
+        text: 'Use /baccarat [bet] [amount] to start playing!'
+      }
+    }],
+    ephemeral: true
+  });
+}
 const baccaratCommand = {
   name: 'baccarat',
   description: 'Play a game of Baccarat against the banker',
@@ -115,6 +147,10 @@ async function handleBaccarat(interaction) {
 
   await interaction.editReply({
     embeds: [{
+      author: {
+        name: interaction.user.username,
+        icon_url: interaction.user.displayAvatarURL({ dynamic: true })
+      },
       title: '🎲 Baccarat - Game Result',
       description: `Your bet: ${betAmount} on ${betType}\n\n` +
                    `Player's hand: ${formatHand(playerHand)} (Total: ${playerTotal})\n` +
@@ -122,68 +158,12 @@ async function handleBaccarat(interaction) {
                    `${result}\n` +
                    `${winnings >= 0 ? 'You won: ' + winnings : 'You lost: ' + Math.abs(winnings)}`,
       color: color,
+      timestamp: new Date(),
       footer: {
-        text: '🎲 Casino Royale'
+        text: '🎲 Casino Royale',
+        icon_url: interaction.client.user.displayAvatarURL()
       }
     }]
-  });
-}
-
-function getBaccaratHelp() {
-  return {
-    name: 'Baccarat',
-    description: 'A classic casino card game where you bet on Player, Banker, or Tie.',
-    rules: [
-      '1. Place your bet on Player, Banker, or Tie',
-      '2. Two cards are dealt to both Player and Banker',
-      '3. Cards 2-9 are worth face value',
-      '4. 10, J, Q, K are worth 0',
-      '5. A is worth 1',
-      '6. Only the last digit of the total is used (e.g., 15 becomes 5)'
-    ],
-    payouts: [
-      'Player: 1:1',
-      'Banker: 0.95:1 (5% commission)',
-      'Tie: 8:1'
-    ],
-    tips: [
-      '💡 Banker bet has the lowest house edge',
-      '💡 Tie bet has the highest payout but also highest house edge',
-      '💡 All face cards and tens count as zero'
-    ]
-  };
-}
-
-async function showBaccaratHelp(interaction) {
-  const help = getBaccaratHelp();
-  
-  await interaction.reply({
-    embeds: [{
-      title: `🎲 ${help.name}`,
-      description: help.description,
-      color: 0x00FF00,
-      fields: [
-        {
-          name: '📋 Rules',
-          value: help.rules.join('\n'),
-          inline: false
-        },
-        {
-          name: '💰 Payouts',
-          value: help.payouts.join('\n'),
-          inline: false
-        },
-        {
-          name: '💡 Tips',
-          value: help.tips.join('\n'),
-          inline: false
-        }
-      ],
-      footer: {
-        text: 'Use /baccarat [bet] [amount] to start playing!'
-      }
-    }],
-    ephemeral: true
   });
 }
 
