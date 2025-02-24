@@ -1,5 +1,5 @@
 const User = require("../models/users.model");
-const getUserByUsername = async (username) => {
+const getInfoByUserName = async (username) => {
   try {
     if (username) {
       const user = await User.findOne({ aimName: username });
@@ -8,25 +8,44 @@ const getUserByUsername = async (username) => {
     return null; // Return null if username is not provided
   } catch (err) {
     console.error("500 error:", err); // Log the error for debugging
-    return null; // Return null in case of an error
+  }
+};
+const addCasinoTurn = async (amount, username) => {
+  try {
+    const user = await User.findOne({ aimName: username });
+    if (user.bankedTurn < amount) return user;
+    const updatedUser = await User.findOneAndUpdate(
+      { aimName: username },
+      { 
+        $inc: { casinoTurn: Number(amount), },
+        $dec: { backTurn: Number(amount), },
+      }
+    );
+    return updatedUser;
+  } catch {
+    console.log("500 error");
   }
 };
 const updateCasinoTurn = async (amount, username) => {
   try {
+    let updatedUser;
     if (Number(amount) > 0)
-      await User.findOneAndUpdate(
+      updatedUser = await User.findOneAndUpdate(
         { aimName: username },
         { $inc: { casinoTurn: Number(amount) } }
       );
     else
-      await User.findOneAndUpdate(
+      updatedUser = await User.findOneAndUpdate(
         { aimName: username },
         { $dec: { casinoTurn: Number(amount) } }
       );
+    return updatedUser;
   } catch {
     console.log("500 error");
   }
-}
+};
 module.exports = {
-  getUserByUsername, updateCasinoTurn ,
+  getInfoByUserName,
+  updateCasinoTurn,
+  addCasinoTurn
 };
