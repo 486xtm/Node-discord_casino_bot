@@ -154,7 +154,7 @@ async function handleBlackjack(interaction) {
     return await showBlackjackHelp(interaction);
   }
 
-  const betAmount = interaction.options.getInteger("bet") || 100;
+  const betAmount = interaction.options.getInteger("bet") || 0;
 
   try {
     const userInfo = await getInfoByUserName(interaction.user.username);
@@ -182,31 +182,31 @@ async function handleBlackjack(interaction) {
       });
     }
 
-    // if (userInfo.casinoTurn < betAmount) {
-    //   return await interaction.reply({
-    //     embeds: [{
-    //       title: "❌ Insufficient Turns",
-    //       description: "You don't have enough turns to place this bet!",
-    //       fields: [
-    //         {
-    //           name: "Your Current Turns",
-    //           value: `${userInfo.casinoTurn} turns available`,
-    //           inline: false
-    //         },
-    //         {
-    //           name: "Bet Amount",
-    //           value: `${betAmount} turns required`,
-    //           inline: false
-    //         }
-    //       ],
-    //       color: 0xFF0000, // Red color for error
-    //       footer: {
-    //         text: "💡 Try placing a smaller bet or get more turns!"
-    //       }
-    //     }],
-    //     ephemeral: true
-    //   });
-    // }
+    if (userInfo.casinoTurn < betAmount) {
+      return await interaction.reply({
+        embeds: [{
+          title: "❌ Insufficient Turns",
+          description: "You don't have enough turns to place this bet!",
+          fields: [
+            {
+              name: "Your Current Turns",
+              value: `${userInfo.casinoTurn} turns available`,
+              inline: false
+            },
+            {
+              name: "Bet Amount",
+              value: `${betAmount} turns required`,
+              inline: false
+            }
+          ],
+          color: 0xFF0000, // Red color for error
+          footer: {
+            text: "💡 Try placing a smaller bet or get more turns!"
+          }
+        }],
+        ephemeral: true
+      });
+    }
 
     const deck = createDeck();
     const playerHand = [deck.pop(), deck.pop()];

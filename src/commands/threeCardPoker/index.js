@@ -305,7 +305,6 @@ function getThreeCardPokerHelp() {
 }
 
 module.exports = {
-  threeCardPokerCommand,
-  handleThreeCardPoker,
-  getThreeCardPokerHelp,
+  command: threeCardPokerCommand,
+  handler: handleThreeCardPoker,
 };

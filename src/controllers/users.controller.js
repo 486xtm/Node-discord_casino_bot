@@ -10,16 +10,38 @@ const getInfoByUserName = async (username) => {
     console.error("500 error:", err); // Log the error for debugging
   }
 };
-const addCasinoTurn = async (amount, username) => {
+const depositTurns = async (amount, username) => {
   try {
     const user = await User.findOne({ aimName: username });
     if (user.bankedTurn < amount) return user;
     const updatedUser = await User.findOneAndUpdate(
       { aimName: username },
-      { 
-        $inc: { casinoTurn: Number(amount), },
-        $dec: { backTurn: Number(amount), },
-      }
+      {
+        $inc: {
+          casinoTurn: Number(amount),
+          bankedTurn: -Number(amount),
+        },
+      },
+      { new: true }
+    );
+    return updatedUser;
+  } catch {
+    console.log("500 error");
+  }
+};
+const withDrawTurns = async (amount, username) => {
+  try {
+    const user = await User.findOne({ aimName: username });
+    if (user.casinoTurn < amount) return user;
+    const updatedUser = await User.findOneAndUpdate(
+      { aimName: username },
+      {
+        $inc: {
+          casinoTurn: -Number(amount),
+          bankedTurn: Number(amount),
+        },
+      },
+      { new: true }
     );
     return updatedUser;
   } catch {
@@ -28,17 +50,11 @@ const addCasinoTurn = async (amount, username) => {
 };
 const updateCasinoTurn = async (amount, username) => {
   try {
-    let updatedUser;
-    if (Number(amount) > 0)
-      updatedUser = await User.findOneAndUpdate(
-        { aimName: username },
-        { $inc: { casinoTurn: Number(amount) } }
-      );
-    else
-      updatedUser = await User.findOneAndUpdate(
-        { aimName: username },
-        { $dec: { casinoTurn: Number(amount) } }
-      );
+    const updatedUser = await User.findOneAndUpdate(
+      { aimName: username },
+      { $inc: { casinoTurn: Number(amount) } },
+      { new: true }
+    );
     return updatedUser;
   } catch {
     console.log("500 error");
@@ -47,5 +63,6 @@ const updateCasinoTurn = async (amount, username) => {
 module.exports = {
   getInfoByUserName,
   updateCasinoTurn,
-  addCasinoTurn
+  depositTurns,
+  withDrawTurns,
 };

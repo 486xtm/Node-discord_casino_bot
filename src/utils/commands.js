@@ -1,14 +1,16 @@
 const { REST, Routes } = require('discord.js');
 const roulette = require('../commands/roulette');
 const blackjack = require('../commands/blackjack');
-const { threeCardPokerCommand, handleThreeCardPoker } = require('../commands/threeCardPoker');
-const { baccaratCommand, handleBaccarat } = require('../commands/baccarat');
+const threeCardPoker = require('../commands/threeCardPoker');
+const baccarat = require('../commands/baccarat');
+const balance = require('../commands/withdrawDeposit');
 
 const commands = [
   roulette.command,
   blackjack.command,
-  threeCardPokerCommand,
-  baccaratCommand,
+  threeCardPoker.command,
+  baccarat.command,
+  balance.command,
   {
     name: 'ping',
     description: 'Check bot latency'
@@ -22,8 +24,9 @@ const commands = [
 const commandHandlers = {
   roulette: roulette.handler,
   blackjack: blackjack.handler,
-  threecardpoker: handleThreeCardPoker,
-  baccarat: handleBaccarat
+  threecardpoker: threeCardPoker.handler,
+  baccarat: baccarat.handler,
+  balance: balance.handler
 };
 
 async function deployCommands(token, clientId) {

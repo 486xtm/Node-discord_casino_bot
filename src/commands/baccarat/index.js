@@ -188,7 +188,6 @@ async function showBaccaratHelp(interaction) {
 }
 
 module.exports = {
-  baccaratCommand,
-  handleBaccarat,
-  getBaccaratHelp
+  command: baccaratCommand,
+  handler: handleBaccarat,
 };
