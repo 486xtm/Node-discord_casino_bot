@@ -1,4 +1,5 @@
 const { formatHand } = require('../../utils/utils');
+const {getInfoByUserName, updateCasinoTurn} = require('../../controllers/users.controller');
 const suits = ['H', 'D', 'C', 'S']; // Hearts, Diamonds, Clubs, Spades
 const cardValues = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
@@ -137,6 +138,10 @@ async function handleBlackjack(interaction) {
   }
 
   const betAmount = interaction.options.getInteger('bet') || 100;
+  const UserInfo =await getInfoByUserName(interaction.user.username);
+  // if(!UserInfo) {
+  //   console.log("plz signIn");
+  // } 
   const deck = createDeck();
   const playerHand = [deck.pop(), deck.pop()];
   const dealerHand = [deck.pop(), deck.pop()];

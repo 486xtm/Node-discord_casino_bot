@@ -1,6 +1,8 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-require("dotenv").config();
+const {BOT_TOKEN, CLIENT_ID, GUILD_ID} = require("./utils/config");
+const { connect } = require("./utils/database");
 const { commandHandlers, deployCommands } = require("./utils/commands");
+const { getInfo } = require("./controllers/users.controller");
 
 const client = new Client({
   intents: [
@@ -11,84 +13,21 @@ const client = new Client({
 });
 
 // Deploy commands
-deployCommands(process.env.BOT_TOKEN, process.env.CLIENT_ID);
-
-const suits = { H: "H", D: "D", C: "C", S: "S" };
-const ranks = [
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
-  "A",
-];
-
-const cardImages = {};
-for (const suit of Object.keys(suits)) {
-  for (const rank of ranks) {
-    const name = `${rank}_${suits[suit]}`.toLowerCase();
-    const url = `https://deckofcardsapi.com/static/img/${
-      rank == "10" ? "0" : rank
-    }${suit}.png`;
-    cardImages[name] = url;
-  }
-}
+deployCommands(BOT_TOKEN, CLIENT_ID);
 
 client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     activities: [{ name: "/help", type: 0 }],
     status: "online",
-  });
-  // try {
-  // const guild = await client.guilds.fetch(process.env.GUILD_ID);
+  }); 
+  // const guild = await client.guilds.fetch(GUILD_ID);
   // const existingEmojis = await guild.emojis.fetch();
   // let data = {}
   // existingEmojis.forEach((val) => {
   //   data[val.name] = `<:${val.name}:${val.id}>`
   // })
   // console.log(data);
-  //   const existingNames = new Set(existingEmojis.map((e) => e.name));
-
-  //   for (const [name, url] of Object.entries(cardImages)) {
-  //     const emojiName = name.replace(/_/g, ""); // Remove underscores for emoji names
-
-  //     if (existingNames.has(emojiName)) {
-  //       console.log(`⚠️ Skipping ${emojiName}, already uploaded.`);
-  //       continue; // Skip this emoji if it already exists
-  //     }
-
-  //     try {
-  //       console.log(`📤 Uploading: ${emojiName}...`);
-
-  //       const response = await fetch(url);
-  //       const buffer = await response.arrayBuffer();
-
-  //       const emoji = await guild.emojis.create({
-  //         attachment: Buffer.from(buffer),
-  //         name: emojiName,
-  //       });
-
-  //       console.log(
-  //         `✅ Uploaded: ${emoji.name} - <:${emoji.name}:${emoji.id}>`
-  //       );
-  //     } catch (error) {
-  //       console.error(`❌ Failed to upload ${emojiName}:`, error);
-  //     }
-  //   }
-
-  //   console.log("🎴 All card emojis processed successfully!");
-  // } catch (error) {
-  //   console.error("❌ Failed to fetch guild:", error);
-  // }
-  // client.destroy();
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -160,9 +99,9 @@ client.on("interactionCreate", async (interaction) => {
         });
         break;
     }
-  } catch {
-    console.log("unknown error")
+  } catch(err) {
+    console.log("unknown error", err)
   }
 });
-
-client.login(process.env.BOT_TOKEN);
+connect();
+client.login(BOT_TOKEN);
