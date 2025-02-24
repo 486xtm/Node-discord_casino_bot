@@ -32,7 +32,7 @@ const blackjackCommand = {
       options: [
         {
           name: "bet",
-          description: "Amount to bet (100 - 10000) (default: 100)",
+          description: "Amount to bet (100 - 10000)",
           type: 4, // INTEGER type
           required: true,
           min_value: 100,

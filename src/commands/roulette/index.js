@@ -1,3 +1,4 @@
+const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
 const { beforeStart, rouletteHelp } = require("../../utils/embeds");
 const rouletteWheel = {
   0: "green",
@@ -56,10 +57,10 @@ const rouletteCommand = {
         },
         {
           name: "amount",
-          description: "Amount to bet (default: 100)",
+          description: "Amount to bet (100-1000)",
           type: 4, // INTEGER type
-          required: false,
-          min_value: 10,
+          required: true,
+          min_value: 100,
           max_value: 1000,
         },
       ],
@@ -114,8 +115,41 @@ async function handleRoulette(interaction) {
     return await showRouletteHelp(interaction);
   }
 
+  const betAmount = interaction.options.getInteger("amount") || 0;
+  const userInfo = await getInfoByUserName(interaction.user.username);
+  if (!userInfo) {
+    return await interaction.reply(beforeStart);
+  }
+
+  if (userInfo.casinoTurn < betAmount) {
+    return await interaction.reply({
+      embeds: [
+        {
+          title: "❌ Insufficient Turns",
+          description: "You don't have enough turns to place this bet!",
+          fields: [
+            {
+              name: "Your Current Turns",
+              value: `${userInfo.casinoTurn} turns available`,
+              inline: false,
+            },
+            {
+              name: "Bet Amount",
+              value: `${betAmount} turns required`,
+              inline: false,
+            },
+          ],
+          color: 0xff0000, // Red color for error
+          footer: {
+            text: "💡 Try placing a smaller bet or get more turns!",
+          },
+        },
+      ],
+      ephemeral: true,
+    });
+  }
+
   const bet = interaction.options.getString("bet").toLowerCase().trim();
-  const betAmount = interaction.options.getInteger("amount") || 100;
   let betColor = null;
   let betNumber = null;
 
@@ -165,23 +199,35 @@ async function handleRoulette(interaction) {
   } ${resultColor} )\n\n`;
 
   if (betNumber !== null) {
+    const updatedUser = await updateCasinoTurn(
+      betNumber === resultNumber ? betAmount * 35 : -betAmount,
+      interaction.user.username
+    );
     resultMessage +=
       betNumber === resultNumber
-        ? `🎉 **Congratulations!** You won **${betAmount * 35}** chips!\n` +
-          `You bet on number **${betNumber}** and won!`
-        : `😔 **Too bad!** You lost **${betAmount}** chips.\n` +
-          `You bet on number **${betNumber}** but lost.`;
+        ? `🎉 **Congratulations!** You won **${betAmount * 35}** Truns!\n` +
+          `You bet on number **${betNumber}** and won!\n` +
+          `**Your Current Balance:** ${updatedUser.casinoTurn}`
+        : `😔 **Too bad!** You lost **${betAmount}** Truns.\n` +
+          `You bet on number **${betNumber}** but lost.\n` +
+          `**Your Current Balance:** ${updatedUser.casinoTurn}`;
   } else {
+    const updatedUser = await updateCasinoTurn(
+      betColor === resultColor ? betAmount : -betAmount,
+      interaction.user.username
+    );
     resultMessage +=
       betColor === resultColor
-        ? `🎉 **Congratulations!** You won **${betAmount}** chips!\n` +
+        ? `🎉 **Congratulations!** You won **${betAmount}** Truns!\n` +
           `You bet on ${
             betColor === "red" ? "🔴" : "⚫"
-          } **${betColor}** and won!`
-        : `😔 **Too bad!** You lost **${betAmount}** chips.\n` +
+          } **${betColor}** and won!\n` + 
+          `**Your Current Balance:** ${updatedUser.casinoTurn}`
+        : `😔 **Too bad!** You lost **${betAmount}** Truns.\n` +
           `You bet on ${
             betColor === "red" ? "🔴" : "⚫"
-          } **${betColor}** but lost.`;
+          } **${betColor}** but lost.\n` +
+          `**Your Current Balance:** ${updatedUser.casinoTurn}`;
   }
 
   await interaction.reply({
