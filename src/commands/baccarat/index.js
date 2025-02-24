@@ -45,10 +45,12 @@ const baccaratCommand = {
 
 function createDeck() {
   const deck = [];
-  // Use 6 decks of cards
+  // Use 6 decks of cards with suits
   for (let i = 0; i < 6; i++) {
-    for (const card of Object.keys(cardValues)) {
-      deck.push(card);
+    for (const suit of suits) {
+      for (const card of Object.keys(cardValues)) {
+        deck.push(`${card}${suit}`); // Creates cards like "AS", "10H", "KD"
+      }
     }
   }
   // Shuffle deck
@@ -60,7 +62,11 @@ function createDeck() {
 }
 
 function calculateHand(hand) {
-  const total = hand.reduce((sum, card) => sum + cardValues[card], 0) % 10;
+  const total = hand.reduce((sum, card) => {
+    // Extract the value part of the card (removing suit)
+    const value = card.slice(0, -1);
+    return sum + cardValues[value];
+  }, 0) % 10;
   return total;
 }
 
@@ -111,8 +117,8 @@ async function handleBaccarat(interaction) {
     embeds: [{
       title: '🎲 Baccarat - Game Result',
       description: `Your bet: ${betAmount} on ${betType}\n\n` +
-                   `Player's hand: ${playerHand.join(', ')} (Total: ${playerTotal})\n` +
-                   `Banker's hand: ${bankerHand.join(', ')} (Total: ${bankerTotal})\n\n` +
+                   `Player's hand: ${formatHand(playerHand)} (Total: ${playerTotal})\n` +
+                   `Banker's hand: ${formatHand(bankerHand)} (Total: ${bankerTotal})\n\n` +
                    `${result}\n` +
                    `${winnings >= 0 ? 'You won: ' + winnings : 'You lost: ' + Math.abs(winnings)}`,
       color: color,
