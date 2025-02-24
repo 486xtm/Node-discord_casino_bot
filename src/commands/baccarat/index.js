@@ -1,3 +1,5 @@
+const { formatHand } = require('../../utils/utils');
+const suits = ['H', 'D', 'C', 'S']; // Hearts, Diamonds, Clubs, Spades
 const cardValues = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
   '10': 0, 'J': 0, 'Q': 0, 'K': 0, 'A': 1

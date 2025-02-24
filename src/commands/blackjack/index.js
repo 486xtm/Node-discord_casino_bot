@@ -1,3 +1,4 @@
+const { formatHand } = require('../../utils/utils');
 const suits = ['H', 'D', 'C', 'S']; // Hearts, Diamonds, Clubs, Spades
 const cardValues = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
@@ -147,7 +148,7 @@ async function handleBlackjack(interaction) {
         icon_url: interaction.user.displayAvatarURL({ dynamic: true })
       },
       title: '🎲 Blackjack',
-      description: `Your hand: ${playerHand.join(', ')} (Total: ${calculateHand(playerHand)})\nDealer's face-up card: ${dealerHand[0]}`,
+      description: `Your hand: ${formatHand(playerHand)} (Total: ${calculateHand(playerHand)})\nDealer's hand: ${formatHand(dealerHand, true)}`,
       color: 0x00FF00,
       timestamp: new Date(),
       footer: {
@@ -211,8 +212,8 @@ async function handleBlackjack(interaction) {
               icon_url: interaction.user.displayAvatarURL({ dynamic: true })
             },
             title: '🎲 Blackjack - Bust!',
-            description: `**Your Hand:** ${gameState.playerHand.join(', ')} (Total: ${playerTotal})\n` +
-                         `**Dealer's Hand:** ${gameState.dealerHand.join(', ')} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
+            description: `**Your Hand:** ${formatHand(gameState.playerHand)} (Total: ${playerTotal})\n` +
+                         `**Dealer's Hand:** ${formatHand(gameState.dealerHand)} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
                          `Bust! You lose! 😔`,
             color: 0xFF0000,
             timestamp: new Date(),
@@ -233,7 +234,7 @@ async function handleBlackjack(interaction) {
             icon_url: interaction.user.displayAvatarURL({ dynamic: true })
           },
           title: '🎲 Blackjack',
-          description: `Your hand: ${gameState.playerHand.join(', ')} (Total: ${playerTotal})\nDealer's face-up card: ${gameState.dealerHand[0]}`,
+          description: `Your hand: ${formatHand(gameState.playerHand)} (Total: ${playerTotal})\nDealer's hand: ${formatHand(gameState.dealerHand, true)}`,
           color: 0x00FF00,
           timestamp: new Date(),
           footer: {
@@ -249,14 +250,14 @@ async function handleBlackjack(interaction) {
       collector.stop();
       
       let dealerTotal = calculateHand(gameState.dealerHand);
-      let message = `**Your Hand:** ${gameState.playerHand.join(', ')} (Total: ${calculateHand(gameState.playerHand)})\n` +
-                    `**Dealer's Initial Hand:** ${gameState.dealerHand.join(', ')} (Total: ${dealerTotal})\n\n`;
+      let message = `**Your Hand:** ${formatHand(gameState.playerHand)} (Total: ${calculateHand(gameState.playerHand)})\n` +
+                    `**Dealer's Initial Hand:** ${formatHand(gameState.dealerHand)} (Total: ${dealerTotal})\n\n`;
 
       while (dealerTotal < 17) {
         gameState.dealerHand.push(gameState.deck.pop());
         dealerTotal = calculateHand(gameState.dealerHand);
-        message += `Dealer draws: ${gameState.dealerHand[gameState.dealerHand.length - 1]}\n` +
-                   `**Dealer's New Hand:** ${gameState.dealerHand.join(', ')} (Total: ${dealerTotal})\n\n`;
+        message += `Dealer draws: ${formatHand([gameState.dealerHand[gameState.dealerHand.length - 1]])}\n` +
+                   `**Dealer's New Hand:** ${formatHand(gameState.dealerHand)} (Total: ${dealerTotal})\n\n`;
       }
 
       const playerTotal = calculateHand(gameState.playerHand);
@@ -278,8 +279,8 @@ async function handleBlackjack(interaction) {
 
       // Final summary box
       const finalSummary = `📊 **Final Results:**\n` +
-                          `👤 Your Hand: ${gameState.playerHand.join(', ')} (Total: ${playerTotal})\n` +
-                          `🎰 Dealer's Hand: ${gameState.dealerHand.join(', ')} (Total: ${dealerTotal})\n\n` +
+                          `👤 Your Hand: ${formatHand(gameState.playerHand)} (Total: ${playerTotal})\n` +
+                          `🎰 Dealer's Hand: ${formatHand(gameState.dealerHand)} (Total: ${dealerTotal})\n\n` +
                           `${resultMessage}`;
 
       await i.update({
