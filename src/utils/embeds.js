@@ -118,7 +118,7 @@ const blackjackHelp = {
   ],
   payouts: [
     "Win: 1:1 (double your bet)",
-    // "Blackjack (21 with first two cards): 3:2",
+    "Blackjack (21 with first two cards): 3:2",
     "Lose: Lose your bet",
     "Tie: Bet is returned",
   ],
