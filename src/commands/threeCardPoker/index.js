@@ -1,6 +1,13 @@
 const { formatHand } = require("../../utils/utils");
-const { beforeStart, insufficientBalance, threeCardPokerHelp } = require("../../utils/embeds");
-const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
+const {
+  beforeStart,
+  insufficientBalance,
+  threeCardPokerHelp,
+} = require("../../utils/embeds");
+const {
+  getInfoByUserName,
+  updateCasinoTurn,
+} = require("../../controllers/users.controller");
 const suits = ["D", "H", "S", "C"];
 const ranks = [
   "2",
@@ -269,7 +276,9 @@ async function handleThreeCardPoker(interaction) {
               icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
             },
             title: "🎲 Three Card Poker - Game Over",
-            description: `You folded! 😔 Dealer wins by default.\n` + `**Current Balance:** ${updatedUser.casinoTurn}`,
+            description:
+              `You folded! 😔 Dealer wins by default.\n` +
+              `**Current Balance:** ${updatedUser.casinoTurn}`,
             color: 0xff0000,
             timestamp: new Date(),
             footer: {
@@ -283,7 +292,7 @@ async function handleThreeCardPoker(interaction) {
       return;
     }
 
-    const {message, result} = determineWinner(playerHand, dealerHand);
+    const { message, result } = determineWinner(playerHand, dealerHand);
     const updatedUser = await updateCasinoTurn(
       result === 1 ? betAmount : result === 0 ? -betAmount : 0,
       interaction.user.username
@@ -296,10 +305,12 @@ async function handleThreeCardPoker(interaction) {
             icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
           },
           title: "🎲 Three Card Poker - Game Over",
-          description: `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
-            dealerHand
-          )}\n\n${message}\n` + `**Current Balance:** ${updatedUser.casinoTurn}`,
-          color:  result === 1 ? 0x00ff00 : result === 0 ? 0xff0000 : orange,
+          description:
+            `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
+              dealerHand
+            )}\n\n${message}\n` +
+            `**Current Balance:** ${updatedUser.casinoTurn}`,
+          color: result === 1 ? 0x00ff00 : result === 0 ? 0xff0000 : orange,
           timestamp: new Date(),
           footer: {
             text: "🎲 Casino Royale",
@@ -310,19 +321,32 @@ async function handleThreeCardPoker(interaction) {
       components: [],
     });
   } catch (error) {
+    const updatedUser = await updateCasinoTurn(
+      -Math.floor(betAmount / 2),
+      interaction.user.username
+    );
     await interaction.editReply({
       embeds: [
         {
+          author: {
+            name: interaction.user.username,
+            icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
+          },
           title: "🎲 Three Card Poker - Timeout",
           description:
-            "Game cancelled - no response received within 30 seconds.",
+            `Game cancelled - no response received within 120 seconds.\n You lost half of your bet.` +
+            `\n**Current Balance:** ${updatedUser.casinoTurn}`,
           color: 0xff0000,
+          timestamp: new Date(),
+          footer: {
+            text: "🎲 Casino Royale",
+            icon_url: interaction.client.user.displayAvatarURL(),
+          },
         },
       ],
       components: [],
       ephemeral: true,
-    },
-  );
+    });
   }
 }
 

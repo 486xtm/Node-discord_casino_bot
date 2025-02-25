@@ -1,8 +1,18 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, DiscordAPIError } = require("discord.js");
 const {BOT_TOKEN, CLIENT_ID, GUILD_ID} = require("./utils/config");
 const { connect } = require("./utils/database");
 const { commandHandlers, deployCommands } = require("./utils/commands");
 const { helpEmbed } = require("./utils/embeds");
+
+// Add global unhandled rejection handler to prevent crashes
+process.on('unhandledRejection', (error) => {
+  if (error instanceof DiscordAPIError && error.code === 40060) {
+    console.log('Interaction already acknowledged error. Ignoring.');
+  } else {
+    console.error('Unhandled promise rejection:', error);
+  }
+  // Don't exit the process, just log the error
+});
 
 const client = new Client({
   intents: [
