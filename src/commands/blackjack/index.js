@@ -224,7 +224,7 @@ async function handleBlackjack(interaction) {
 
     const collector = interaction.channel.createMessageComponentCollector({
       filter,
-      time: 30000,
+      time: 120000,
     });
 
     collector.on("collect", async (i) => {
