@@ -1,5 +1,6 @@
 const { formatHand } = require("../../utils/utils");
-const { beforeStart, threeCardPokerHelp } = require("../../utils/embeds");
+const { beforeStart, insufficientBalance, threeCardPokerHelp } = require("../../utils/embeds");
+const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
 const suits = ["D", "H", "S", "C"];
 const ranks = [
   "2",
@@ -27,12 +28,12 @@ const threeCardPokerCommand = {
       type: 1, // Subcommand
       options: [
         {
-          name: "bet",
-          description: "Amount to bet (default: 100)",
+          name: "amount",
+          description: "Amount to bet (100-100000) (default: 100)",
           type: 4, // INTEGER type
-          required: false,
-          min_value: 10,
-          max_value: 1000,
+          required: true,
+          min_value: 100,
+          max_value: 100000,
         },
       ],
     },
@@ -112,20 +113,26 @@ function handRank(hand) {
 function determineWinner(playerHand, dealerHand) {
   const playerRank = handRank(playerHand);
   const dealerRank = handRank(dealerHand);
-
+  let message = "";
+  let result = 2;
   if (playerRank[0] < dealerRank[0]) {
-    return "You win! 🎉";
+    message = "You win! 🎉";
+    result = 1;
   } else if (playerRank[0] > dealerRank[0]) {
-    return "Dealer wins! 😔";
+    message = "Dealer wins! 😔";
+    result = 0;
   } else {
     if (playerRank[1] > dealerRank[1]) {
-      return "You win! 🎉";
+      message = "You win! 🎉";
+      result = 1;
     } else if (playerRank[1] < dealerRank[1]) {
-      return "Dealer wins! 😔";
+      message = "Dealer wins! 😔";
+      result = 0;
     } else {
-      return "It's a tie! 🤝";
+      message = "It's a tie! 🤝";
     }
   }
+  return { message, result };
 }
 
 async function showThreeCardPokerHelp(interaction) {
@@ -173,6 +180,16 @@ async function handleThreeCardPoker(interaction) {
 
   if (subcommand === "help") {
     return showThreeCardPokerHelp(interaction);
+  }
+
+  const betAmount = interaction.options.getInteger("amount") || 100;
+  const userInfo = await getInfoByUserName(interaction.user.username);
+
+  if (!userInfo) {
+    return await interaction.reply(beforeStart);
+  }
+  if (userInfo.casinoTurn < betAmount) {
+    return await interaction.reply(insufficientBalance(userInfo, betAmount));
   }
 
   await interaction.reply({
@@ -236,10 +253,14 @@ async function handleThreeCardPoker(interaction) {
     const filter = (i) => i.user.id === interaction.user.id;
     const response = await interaction.channel.awaitMessageComponent({
       filter,
-      time: 30000,
+      time: 120000,
     });
 
     if (response.customId === "fold") {
+      const updatedUser = await updateCasinoTurn(
+        -betAmount,
+        interaction.user.username
+      );
       await interaction.editReply({
         embeds: [
           {
@@ -248,7 +269,7 @@ async function handleThreeCardPoker(interaction) {
               icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
             },
             title: "🎲 Three Card Poker - Game Over",
-            description: "You folded! Dealer wins by default.",
+            description: `You folded! 😔 Dealer wins by default.\n` + `**Current Balance:** ${updatedUser.casinoTurn}`,
             color: 0xff0000,
             timestamp: new Date(),
             footer: {
@@ -262,7 +283,11 @@ async function handleThreeCardPoker(interaction) {
       return;
     }
 
-    const result = determineWinner(playerHand, dealerHand);
+    const {message, result} = determineWinner(playerHand, dealerHand);
+    const updatedUser = await updateCasinoTurn(
+      result === 1 ? betAmount : result === 0 ? -betAmount : 0,
+      interaction.user.username
+    );
     await interaction.editReply({
       embeds: [
         {
@@ -273,8 +298,8 @@ async function handleThreeCardPoker(interaction) {
           title: "🎲 Three Card Poker - Game Over",
           description: `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
             dealerHand
-          )}\n\n${result}`,
-          color: result.includes("win") ? 0x00ff00 : 0xff0000,
+          )}\n\n${message}\n` + `**Current Balance:** ${updatedUser.casinoTurn}`,
+          color:  result === 1 ? 0x00ff00 : result === 0 ? 0xff0000 : orange,
           timestamp: new Date(),
           footer: {
             text: "🎲 Casino Royale",
@@ -295,7 +320,9 @@ async function handleThreeCardPoker(interaction) {
         },
       ],
       components: [],
-    });
+      ephemeral: true,
+    },
+  );
   }
 }
 

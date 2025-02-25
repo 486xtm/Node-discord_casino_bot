@@ -1,5 +1,5 @@
 const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
-const { beforeStart, rouletteHelp } = require("../../utils/embeds");
+const { beforeStart, insufficientBalance , rouletteHelp } = require("../../utils/embeds");
 const rouletteWheel = {
   0: "green",
   1: "red",
@@ -57,11 +57,11 @@ const rouletteCommand = {
         },
         {
           name: "amount",
-          description: "Amount to bet (100-1000)",
+          description: "Amount to bet (100-100000)",
           type: 4, // INTEGER type
           required: true,
           min_value: 100,
-          max_value: 1000,
+          max_value: 100000,
         },
       ],
     },
@@ -115,38 +115,14 @@ async function handleRoulette(interaction) {
     return await showRouletteHelp(interaction);
   }
 
-  const betAmount = interaction.options.getInteger("amount") || 0;
+  const betAmount = interaction.options.getInteger("amount") || 100;
   const userInfo = await getInfoByUserName(interaction.user.username);
+
   if (!userInfo) {
     return await interaction.reply(beforeStart);
   }
-
   if (userInfo.casinoTurn < betAmount) {
-    return await interaction.reply({
-      embeds: [
-        {
-          title: "❌ Insufficient Turns",
-          description: "You don't have enough turns to place this bet!",
-          fields: [
-            {
-              name: "Your Current Turns",
-              value: `${userInfo.casinoTurn} turns available`,
-              inline: false,
-            },
-            {
-              name: "Bet Amount",
-              value: `${betAmount} turns required`,
-              inline: false,
-            },
-          ],
-          color: 0xff0000, // Red color for error
-          footer: {
-            text: "💡 Try placing a smaller bet or get more turns!",
-          },
-        },
-      ],
-      ephemeral: true,
-    });
+    return await interaction.reply(insufficientBalance(userInfo, betAmount));
   }
 
   const bet = interaction.options.getString("bet").toLowerCase().trim();

@@ -1,5 +1,5 @@
 const { formatHand } = require("../../utils/utils");
-const { beforeStart, blackjackHelp } = require("../../utils/embeds");
+const { beforeStart, insufficientBalance, blackjackHelp } = require("../../utils/embeds");
 const {
   getInfoByUserName,
   updateCasinoTurn,
@@ -32,11 +32,11 @@ const blackjackCommand = {
       options: [
         {
           name: "bet",
-          description: "Amount to bet (100 - 10000)",
+          description: "Amount to bet (100 - 100000)",
           type: 4, // INTEGER type
           required: true,
           min_value: 100,
-          max_value: 10000,
+          max_value: 100000,
         },
       ],
     },
@@ -420,33 +420,8 @@ async function handleBlackjack(interaction) {
     if (!userInfo) {
       return await interaction.reply(beforeStart);
     }
-
     if (userInfo.casinoTurn < betAmount) {
-      return await interaction.reply({
-        embeds: [
-          {
-            title: "❌ Insufficient Turns",
-            description: "You don't have enough turns to place this bet!",
-            fields: [
-              {
-                name: "Your Current Turns",
-                value: `${userInfo.casinoTurn} turns available`,
-                inline: false,
-              },
-              {
-                name: "Bet Amount",
-                value: `${betAmount} turns required`,
-                inline: false,
-              },
-            ],
-            color: 0xff0000, // Red color for error
-            footer: {
-              text: "💡 Try placing a smaller bet or get more turns!",
-            },
-          },
-        ],
-        ephemeral: true,
-      });
+      return await interaction.reply(insufficientBalance(userInfo, betAmount));
     }
 
     // Check if user has enough turns for potential double down

@@ -1,5 +1,7 @@
 const { formatHand } = require('../../utils/utils');
-const { beforeStart, baccaratHelp } = require('../../utils/embeds');
+const { beforeStart,insufficientBalance , baccaratHelp } = require('../../utils/embeds');
+const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
+
 const suits = ['H', 'D', 'C', 'S']; // Hearts, Diamonds, Clubs, Spades
 const cardValues = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
@@ -59,11 +61,11 @@ const baccaratCommand = {
         },
         {
           name: 'amount',
-          description: 'Amount to bet (default: 100)',
+          description: 'Amount to bet (100-100000) (default: 100)',
           type: 4, // INTEGER type
-          required: false,
-          min_value: 10,
-          max_value: 1000
+          required: true,
+          min_value: 100,
+          max_value: 100000
         }
       ]
     },
@@ -112,6 +114,14 @@ async function handleBaccarat(interaction) {
   const betType = interaction.options.getString('bet');
   const betAmount = interaction.options.getInteger('amount') || 100;
 
+  const userInfo = await getInfoByUserName(interaction.user.username);
+  if (!userInfo) {
+    return await interaction.reply(beforeStart);
+  }
+  if (userInfo.casinoTurn < betAmount) {
+    return await interaction.reply(insufficientBalance(userInfo, betAmount));
+  }
+
   await interaction.reply({
     embeds: [{
       title: '🎲 Baccarat',
@@ -145,6 +155,7 @@ async function handleBaccarat(interaction) {
     color = 0xFFFF00;
   }
 
+  const updatedUser = await updateCasinoTurn(winnings, interaction.user.username);
   await interaction.editReply({
     embeds: [{
       author: {
@@ -156,7 +167,8 @@ async function handleBaccarat(interaction) {
                    `Player's hand: ${formatHand(playerHand)} (Total: ${playerTotal})\n` +
                    `Banker's hand: ${formatHand(bankerHand)} (Total: ${bankerTotal})\n\n` +
                    `${result}\n` +
-                   `${winnings >= 0 ? 'You won: ' + winnings : 'You lost: ' + Math.abs(winnings)}`,
+                   `${winnings >= 0 ? 'You won: ' + winnings : 'You lost: ' + Math.abs(winnings)}\n` + 
+                   `**Current Balance:** ${updatedUser.casinoTurn}`,
       color: color,
       timestamp: new Date(),
       footer: {

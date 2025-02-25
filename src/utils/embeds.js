@@ -19,6 +19,33 @@ const beforeStart = {
   ],
   ephemeral: true,
 };
+const insufficientBalance = (userInfo, betAmount) => {
+  return {
+      embeds: [
+        {
+          title: "❌ Insufficient Turns",
+          description: "You don't have enough turns to place this bet!",
+          fields: [
+            {
+              name: "Your Current Turns",
+              value: `${userInfo.casinoTurn} turns available`,
+              inline: false,
+            },
+            {
+              name: "Bet Amount",
+              value: `${betAmount} turns required`,
+              inline: false,
+            },
+          ],
+          color: 0xff0000, // Red color for error
+          footer: {
+            text: "💡 Try placing a smaller bet or get more turns!",
+          },
+        },
+      ],
+      ephemeral: true,
+    };
+}
 const helpEmbed = {
   embeds: [{
     color: 0x0099ff,
@@ -107,7 +134,7 @@ const blackjackHelp = {
   description:
     "A classic casino card game where you compete against the dealer to get closest to 21 without going over.",
   rules: [
-    "1. Place your bet (100-10000 chips)",
+    "1. Place your bet (100-100000 chips)",
     "2. You and the dealer each receive 2 cards",
     "3. Your cards are both face-up, dealer has one face-up and one face-down",
     "4. Cards 2-10 are worth face value",
@@ -156,7 +183,7 @@ const threeCardPokerHelp = {
   description:
     "A casino poker variant played against the dealer with three cards.",
   rules: [
-    "1. Place your bet (10-1000 chips)",
+    "1. Place your bet (100-100000 chips)",
     "2. You and the dealer each receive 3 cards",
     "3. After seeing your cards, choose to Play or Fold",
     "4. If you fold, you lose your bet",
@@ -187,5 +214,6 @@ module.exports = {
   blackjackHelp,
   rouletteHelp,
   threeCardPokerHelp,
-  helpEmbed
+  helpEmbed,
+  insufficientBalance
 };
