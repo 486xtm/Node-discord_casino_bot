@@ -58,38 +58,29 @@ const helpEmbed = {
           "`/balance check` - View your current turns balance\n" +
           "`/balance withdraw amount:[value]` - Withdraw turns from casino\n" +
           "`/balance deposit amount:[value]` - Deposit turns to casino",
-        inline: false
-      },
-      {
-        name: "🎲 Roulette",
-        value:
-          "`/roulette play bet:[number/color] amount:[optional]`\n" +
-          "`/roulette help`\n" +
-          "Bet on numbers (0-36) or colors (red/black). Win up to 35x your bet!",
         inline: false,
       },
       {
-        name: "🃏 Blackjack",
+        name: "🎲 Casino Games",
+        value: 
+          "`/blackjack play amount:[value]`\n" +
+          "Classic card game - get closer to 21 than the dealer without going over!\n\n" +
+          "`/roulette play bet:[number/color] amount:[value]`\n" +
+          "Bet on numbers (0-36) or colors (red/black) and spin the wheel!\n\n" +
+          "`/baccarat play bet:[player/banker/tie] amount:[value]`\n" +
+          "Bet on Player, Banker, or Tie in this elegant casino classic!\n\n" +
+          "`/hotcold play bet:[hot/cold] amount:[value]`\n" +
+          "Bet on whether a flower will be hot or cold in this simple game of chance!",
+        inline: false,
+      },
+      {
+        name: "ℹ️ Game Help Commands",
         value:
-          "`/blackjack play bet:[amount]`\n" +
           "`/blackjack help`\n" +
-          "Play against the dealer - get closer to 21 than them without going over!",
-        inline: false,
-      },
-      {
-        name: "🎴 Three Card Poker",
-        value:
-          "`/threecardpoker play bet:[amount]`\n" +
-          "`/threecardpoker help`\n" +
-          "Play poker with three cards - compete against the dealer for the best hand!",
-        inline: false,
-      },
-      {
-        name: "🎯 Baccarat",
-        value:
-          "`/baccarat play bet:[player/banker/tie] amount:[optional]`\n" +
+          "`/roulette help`\n" +
           "`/baccarat help`\n" +
-          "Bet on Player, Banker, or Tie in this elegant casino classic!",
+          "`/hotcold help`\n" +
+          "Get detailed rules and strategies for each game!",
         inline: false,
       },
       {
