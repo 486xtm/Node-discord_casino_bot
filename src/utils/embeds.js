@@ -70,7 +70,9 @@ const helpEmbed = {
           "`/baccarat play bet:[player/banker/tie] amount:[value]`\n" +
           "Bet on Player, Banker, or Tie in this elegant casino classic!\n\n" +
           "`/hotcold play bet:[hot/cold] amount:[value]`\n" +
-          "Bet on whether a flower will be hot or cold in this simple game of chance!",
+          "Bet on whether a flower will be hot or cold in this simple game of chance!\n\n" +
+          "`/flowerpoker play amount:[value]`\n" +
+          "Plant 5 flowers and try to get the best poker hand in this unique flower-based game!",
         inline: false,
       },
       {
@@ -80,6 +82,7 @@ const helpEmbed = {
           "`/roulette help`\n" +
           "`/baccarat help`\n" +
           "`/hotcold help`\n" +
+          "`/flowerpoker help`\n" +
           "Get detailed rules and strategies for each game!",
         inline: false,
       },
@@ -218,6 +221,46 @@ const hotColdHelp = {
     "• This game is purely luck-based with no strategy involved."
   ]
 };
+const flowerPokerHelp = {
+  name: "Flower Poker",
+  description: "A poker-style game played with colored flowers instead of cards.",
+  rules: [
+    "1. You plant 5 flowers and compete against the dealer.",
+    "2. The goal is to get the best hand possible.",
+    "3. If either you or the dealer plants a White or Black flower, the hand is replanted.",
+    "4. White flower is an automatic win, Black flower is an automatic loss.",
+    "5. White and Black flowers have a 5% chance each, Rainbow has a 10% chance, and other flowers have equal chances."
+  ],
+  handRankings: [
+    "🏆 5 of a Kind - All 5 flowers are the same",
+    "👑 4 of a Kind - 4 flowers are the same and one is different",
+    "🌟 Full House - 3 flowers are the same and another 2 flowers are the same",
+    "📈 3 of a Kind - 3 flowers are the same and other 2 flowers are different",
+    "👥 2 Pair - 2 flowers are the same and another 2 flowers are the same",
+    "👤 1 Pair - 2 flowers are the same and other 3 flowers are different",
+    "🃏 No Pair - All 5 flowers are different"
+  ],
+  flowerTypes: [
+    "🌻 Yellow",
+    "🌸 Orange",
+    "🌹 Red",
+    "🌷 Blue",
+    "🌺 Purple",
+    "💐 Assorted",
+    "🌈 Rainbow (any color)",
+    "⚪ White (Auto Win)",
+    "⚫ Black (Auto Loss)"
+  ],
+  payouts: [
+    "Win: 1:1 (double your bet)",
+    "Lose: Lose your bet"
+  ],
+  tips: [
+    "💡 White flowers give you an automatic win!",
+    "💡 Avoid black flowers as they result in an automatic loss.",
+    "💡 The game continues until both you and the dealer have hands without special flowers."
+  ]
+};
 module.exports = {
   helpEmbed,
   beforeStart,
@@ -227,4 +270,5 @@ module.exports = {
   rouletteHelp,
   threeCardPokerHelp,
   hotColdHelp,
+  flowerPokerHelp,
 };

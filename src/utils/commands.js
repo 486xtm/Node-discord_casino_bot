@@ -5,6 +5,7 @@ const threeCardPoker = require('../commands/threeCardPoker');
 const baccarat = require('../commands/baccarat');
 const balance = require('../commands/withdrawDeposit');
 const hotCold = require("../commands/hotcold");
+const flowerpoker = require("../commands/flowerPoker");
 
 
 const commands = [
@@ -15,6 +16,7 @@ const commands = [
   balance.command,
   ////////////////////////
   hotCold.command,
+  flowerpoker.command,
   {
     name: 'ping',
     description: 'Check bot latency'
@@ -32,7 +34,8 @@ const commandHandlers = {
   baccarat: baccarat.handler,
   balance: balance.handler,
   //////////////////////
-  hotcold: hotCold.handler
+  hotcold: hotCold.handler,
+  flowerpoker: flowerpoker.handler
 };
 
 async function deployCommands(token, clientId) {
