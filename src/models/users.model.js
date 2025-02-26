@@ -321,6 +321,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    gold: {
+      type: Number,
+      default: 0
+    },
     ips: {
       type: [
         {

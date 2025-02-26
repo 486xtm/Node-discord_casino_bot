@@ -56,9 +56,22 @@ const updateCasinoTurn = async (amount, username) => {
     console.log("500 error");
   }
 };
+const updateCasinoGold = async (amount, username) => {
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { aimName: username },
+      { $inc: { gold: Number(amount) } },
+      { new: true }
+    );
+    return updatedUser;
+  } catch {
+    console.log("500 error");
+  }
+};
 module.exports = {
   getInfoByUserName,
   updateCasinoTurn,
   depositTurns,
   withDrawTurns,
+  updateCasinoGold,
 };

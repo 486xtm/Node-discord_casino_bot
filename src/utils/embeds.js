@@ -19,27 +19,27 @@ const beforeStart = {
   ],
   ephemeral: true,
 };
-const insufficientBalance = (userInfo, betAmount) => {
+const insufficientBalance = (userInfo, betAmount, type = "Turns") => {
   return {
       embeds: [
         {
-          title: "❌ Insufficient Turns",
-          description: "You don't have enough turns to place this bet!",
+          title: `❌ Insufficient ${type}`,
+          description: `You don't have enough ${type} to place this bet!`,
           fields: [
             {
-              name: "Your Current Turns",
-              value: `${userInfo.casinoTurn} turns available`,
+              name: `Your Current ${type}`,
+              value: `${type == "Turns" ? userInfo.casinoTurn : userInfo.gold} ${type} available`,
               inline: false,
             },
             {
               name: "Bet Amount",
-              value: `${betAmount} turns required`,
+              value: `${betAmount} ${type} required`,
               inline: false,
             },
           ],
           color: 0xff0000, // Red color for error
           footer: {
-            text: "💡 Try placing a smaller bet or get more turns!",
+            text: `💡 Try placing a smaller bet or get more ${type}!`,
           },
         },
       ],

@@ -1,14 +1,14 @@
-const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
+const { getInfoByUserName, updateCasinoGold } = require("../../controllers/users.controller");
 const { beforeStart, insufficientBalance, hotColdHelp } = require("../../utils/embeds");
 
 // Define the flowers and their categories
 const flowers = [
-  { name: "Yellow", category: "hot", emoji: "🌻" },
-  { name: "Orange", category: "hot", emoji: "🌸" },
-  { name: "Red", category: "hot", emoji: "🌹" },
-  { name: "Blue", category: "cold", emoji: "🌷" },
-  { name: "Purple", category: "cold", emoji: "🌺" },
-  { name: "Assorted", category: "cold", emoji: "💐" }
+  { name: "Yellow", category: "hot", emoji: "<:Yellow:1344407494419808286>" },
+  { name: "Orange", category: "hot", emoji: "<:Orange:1344407482868568084>" },
+  { name: "Red", category: "hot", emoji: "<:Red:1344407489940033547>" },
+  { name: "Blue", category: "cold", emoji: "<:Blue:1344407480259575838>" },
+  { name: "Purple", category: "cold", emoji: "<:Purple:1344407484919582720>" },
+  { name: "Assorted", category: "cold", emoji: "<:Assorted:1344407475025088574>" }
 ];
 
 
@@ -97,8 +97,8 @@ async function handleHotCold(interaction) {
   if (!userInfo) {
     return await interaction.reply(beforeStart);
   }
-  if (userInfo.casinoTurn < betAmount) {
-    return await interaction.reply(insufficientBalance(userInfo, betAmount));
+  if (userInfo.gold < betAmount) {
+    return await interaction.reply(insufficientBalance(userInfo, betAmount, "Golds"));
   }
 
   const userBet = interaction.options.getString("bet").toLowerCase();
@@ -108,7 +108,7 @@ async function handleHotCold(interaction) {
   const isWin = userBet === selectedFlower.category;
   
   // Update user's balance
-  const updatedUser = await updateCasinoTurn(
+  const updatedUser = await updateCasinoGold(
     isWin ? betAmount : -betAmount,
     interaction.user.username
   );
@@ -120,7 +120,7 @@ async function handleHotCold(interaction) {
         `You bet on **${userBet.toUpperCase()}** and won!\n`
       : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
         `You bet on **${userBet.toUpperCase()}** but the flower was **${selectedFlower.category.toUpperCase()}**.\n`) +
-    `**Your Current Balance:** ${updatedUser.casinoTurn}`;
+    `**Your Current Balance:** ${updatedUser.gold}`;
 
   // Send the result
   await interaction.reply({

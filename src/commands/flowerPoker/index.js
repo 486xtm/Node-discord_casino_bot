@@ -1,6 +1,6 @@
 const {
   getInfoByUserName,
-  updateCasinoTurn,
+  updateCasinoGold,
 } = require("../../controllers/users.controller");
 const {
   beforeStart,
@@ -10,15 +10,15 @@ const {
 
 // Define the flowers and their probabilities
 const flowers = [
-  { name: "Yellow", emoji: "🌻", special: false },
-  { name: "Orange", emoji: "🌸", special: false },
-  { name: "Red", emoji: "🌹", special: false },
-  { name: "Blue", emoji: "🌷", special: false },
-  { name: "Purple", emoji: "🌺", special: false },
-  { name: "Assorted", emoji: "💐", special: false },
-  { name: "Rainbow", emoji: "🌈", special: false },
-  { name: "White", emoji: "⚪", special: true, autoWin: true },
-  { name: "Black", emoji: "⚫", special: true, autoLose: true },
+  { name: "Yellow", emoji: "<:Yellow:1344407494419808286>", special: false },
+  { name: "Orange", emoji: "<:Orange:1344407482868568084>", special: false },
+  { name: "Red", emoji: "<:Red:1344407489940033547>", special: false },
+  { name: "Blue", emoji: "<:Blue:1344407480259575838>", special: false },
+  { name: "Purple", emoji: "<:Purple:1344407484919582720>", special: false },
+  { name: "Assorted", emoji: "<:Assorted:1344407475025088574>", special: false },
+  { name: "Rainbow", emoji: "<:Rainbow:1344407488057049158>", special: false },
+  { name: "White", emoji: "<:White:1344407492217802773>", special: true, autoWin: true },
+  { name: "Black", emoji: "<:Black:1344407478133063781>", special: true, autoLose: true },
 ];
 
 // Function to get a random flower based on probabilities
@@ -70,32 +70,32 @@ function getHandRank(hand) {
 
     // Check for 5 of a Kind
     if (uniqueFlowers === 1) {
-      return { rank: 6, name: "5 of a Kind - All five flowers are the same color" };
+      return { rank: 6, name: "5 of a Kind" };
     }
 
     // Check for 4 of a Kind
     if (uniqueFlowers === 2 && values.includes(4)) {
-      return { rank: 5, name: "4 of a Kind - Four flowers of the same color" };
+      return { rank: 5, name: "4 of a Kind" };
     }
 
     // Check for Full House
     if (uniqueFlowers === 2 && values.includes(3) && values.includes(2)) {
-      return { rank: 4, name: "Full House -	Three of one color + Two of another" };
+      return { rank: 4, name: "Full House" };
     }
 
     // Check for 3 of a Kind
     if (values.includes(3) && uniqueFlowers === 3) {
-      return { rank: 3, name: "3 of a Kind - Three flowers of the same color" };
+      return { rank: 3, name: "3 of a Kind" };
     }
 
     // Check for 2 Pair
     if (values.filter((v) => v === 2).length === 2) {
-      return { rank: 2, name: "2 Pair - Two sets of matching flowers" };
+      return { rank: 2, name: "2 Pair" };
     }
 
     // Check for 1 Pair
     if (values.includes(2) && uniqueFlowers === 4) {
-      return { rank: 1, name: "1 Pair - Two flowers of the same color" };
+      return { rank: 1, name: "1 Pair" };
     }
 
     // No Pair
@@ -248,7 +248,7 @@ function hasSpecialFlowers(hand) {
 
 // Function to format hand for display
 function formatHand(hand) {
-  return hand.map((flower) => `${flower.emoji} ${flower.name}`).join(", ");
+  return hand.map((flower) => `${flower.emoji}`).join("");
 }
 
 async function handleFlowerPoker(interaction) {
@@ -264,8 +264,8 @@ async function handleFlowerPoker(interaction) {
   if (!userInfo) {
     return await interaction.reply(beforeStart);
   }
-  if (userInfo.casinoTurn < betAmount) {
-    return await interaction.reply(insufficientBalance(userInfo, betAmount));
+  if (userInfo.gold < betAmount) {
+    return await interaction.reply(insufficientBalance(userInfo, betAmount, "Golds"));
   }
 
   await interaction.deferReply();
@@ -363,7 +363,7 @@ async function handleFlowerPoker(interaction) {
         ? betAmount
         : -betAmount;
 
-    const updatedUser = await updateCasinoTurn(
+    const updatedUser = await updateCasinoGold(
       winAmount,
       interaction.user.username
     );
@@ -391,7 +391,7 @@ async function handleFlowerPoker(interaction) {
         ? `You won **${betAmount}** Turns!\n`
         : `You lost **${betAmount}** Turns.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.casinoTurn}`;
+    resultMessage += `**Your Current Balance:** ${updatedUser.gold}`;
   } else {
     playerRank = getHandRank(playerHand);
     dealerRank = getHandRank(dealerHand);
@@ -420,7 +420,7 @@ async function handleFlowerPoker(interaction) {
         ? betAmount
         : -betAmount;
 
-    const updatedUser = await updateCasinoTurn(
+    const updatedUser = await updateCasinoGold(
       winAmount,
       interaction.user.username
     );
@@ -438,7 +438,7 @@ async function handleFlowerPoker(interaction) {
         ? `You won **${betAmount}** Turns!\n`
         : `You lost **${betAmount}** Turns.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.casinoTurn}`;
+    resultMessage += `**Your Current Balance:** ${updatedUser.gold}`;
   }
 
   if (replantCount > 0) {
