@@ -208,12 +208,32 @@ const threeCardPokerHelp = {
     "💡 A high card of Queen or better is often playable",
   ],
 };
+const hotColdHelp = {
+  name: "Hot or Cold",
+  description: "A simple game of chance where you bet on whether a flower will be hot or cold.",
+  rules: [
+    "1. Choose to bet on either 'hot' or 'cold'.",
+    "2. A flower will be randomly selected.",
+    "3. Hot flowers: Yellow, Orange, Red.",
+    "4. Cold flowers: Blue, Purple, Assorted.",
+    "5. If your prediction matches the flower's category, you win your bet amount.",
+    "6. If your prediction is wrong, you lose your bet amount."
+  ],
+  payouts: [
+    "• Correct prediction: 1:1 (double your bet)"
+  ],
+  tips: [
+    "• Both hot and cold have an equal 50% chance of winning.",
+    "• This game is purely luck-based with no strategy involved."
+  ]
+};
 module.exports = {
+  helpEmbed,
   beforeStart,
+  insufficientBalance,
   baccaratHelp,
   blackjackHelp,
   rouletteHelp,
   threeCardPokerHelp,
-  helpEmbed,
-  insufficientBalance
+  hotColdHelp,
 };

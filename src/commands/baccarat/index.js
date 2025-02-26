@@ -142,15 +142,15 @@ async function handleBaccarat(interaction) {
   let winnings = 0;
 
   if (playerTotal > bankerTotal) {
-    result = 'Player wins! 🎉';
+    result = '💻 Player wins! ';
     winnings = betType === 'player' ? betAmount : -betAmount;
     color = 0x00FF00;
   } else if (bankerTotal > playerTotal) {
-    result = 'Banker wins! 💰';
+    result = '💰 Banker wins! ';
     winnings = betType === 'banker' ? Math.floor(betAmount * 0.95) : -betAmount;
     color = 0xFF0000;
   } else {
-    result = "It's a tie! 🤝";
+    result = "🤝 It's a tie! ";
     winnings = betType === 'tie' ? betAmount * 8 : -betAmount;
     color = 0xFFFF00;
   }
@@ -167,7 +167,7 @@ async function handleBaccarat(interaction) {
                    `Player's hand: ${formatHand(playerHand)} (Total: ${playerTotal})\n` +
                    `Banker's hand: ${formatHand(bankerHand)} (Total: ${bankerTotal})\n\n` +
                    `${result}\n` +
-                   `${winnings >= 0 ? 'You won: ' + winnings : 'You lost: ' + Math.abs(winnings)}\n` + 
+                   `${winnings >= 0 ? '🎉 You won: ' + winnings : '😔 You lost: ' + Math.abs(winnings)}\n` + 
                    `**Current Balance:** ${updatedUser.casinoTurn}`,
       color: color,
       timestamp: new Date(),
