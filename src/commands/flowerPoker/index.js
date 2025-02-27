@@ -106,7 +106,7 @@ function getHandRank(hand) {
 
   // If all 5 are rainbows, it's a 5 of a kind
   if (rainbowCount === 5) {
-    return { rank: 6, name: "5 of a Kind (Rainbow) - 	All five flowers are the same color" };
+    return { rank: 6, name: "5 of a Kind (Rainbow)" };
   }
 
   // Get the counts of each flower type
@@ -114,12 +114,12 @@ function getHandRank(hand) {
 
   // Case: We can make a 5 of a kind if we have at least one flower and enough rainbows
   if (flowerCounts.length > 0 && flowerCounts[0][1] + rainbowCount >= 5) {
-    return { rank: 6, name: "5 of a Kind - 	All five flowers are the same color" };
+    return { rank: 6, name: "5 of a Kind" };
   }
 
   // Case: We can make a 4 of a kind if we have enough of one flower + rainbows
   if (flowerCounts.length > 0 && flowerCounts[0][1] + rainbowCount >= 4) {
-    return { rank: 5, name: "4 of a Kind - Four flowers of the same color" };
+    return { rank: 5, name: "4 of a Kind" };
   }
 
   // Case: We can make a full house if we have enough flowers + rainbows
@@ -135,13 +135,13 @@ function getHandRank(hand) {
     let secondGroupSize = Math.min(2, flowerCounts[1][1] + remainingRainbows);
 
     if (firstGroupSize >= 3 && secondGroupSize >= 2) {
-      return { rank: 4, name: "Full House - Three of one color + Two of another" };
+      return { rank: 4, name: "Full House" };
     }
   }
 
   // Case: We can make a 3 of a kind if we have enough of one flower + rainbows
   if (flowerCounts.length > 0 && flowerCounts[0][1] + rainbowCount >= 3) {
-    return { rank: 3, name: "3 of a Kind - Three flowers of the same color" };
+    return { rank: 3, name: "3 of a Kind" };
   }
 
   // Case: We can make a 2 pair if we have enough different flowers + rainbows
@@ -156,14 +156,14 @@ function getHandRank(hand) {
       // Try to make second pair
       let secondPairNeeded = Math.max(0, 2 - flowerCounts[1][1]);
       if (secondPairNeeded <= remainingRainbows) {
-        return { rank: 2, name: "2 Pair - Two sets of matching flowers" };
+        return { rank: 2, name: "2 Pair" };
       }
     }
   }
 
   // Case: We can make a pair if we have at least one flower + rainbow
   if (flowerCounts.length > 0 && flowerCounts[0][1] + rainbowCount >= 2) {
-    return { rank: 1, name: "1 Pair - Two flowers of the same color" };
+    return { rank: 1, name: "1 Pair" };
   }
 
   // If we get here, we couldn't make anything better than no pair
