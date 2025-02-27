@@ -388,10 +388,10 @@ async function handleFlowerPoker(interaction) {
       resultMessage += "It's a tie! Your bet is returned.\n";
     } else {
       resultMessage += isWin
-        ? `You won **${betAmount}** Turns!\n`
-        : `You lost **${betAmount}** Turns.\n`;
+        ? `You won **${betAmount}** Golds!\n`
+        : `You lost **${betAmount}** Golds.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.gold}`;
+    resultMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
   } else {
     playerRank = getHandRank(playerHand);
     dealerRank = getHandRank(dealerHand);
@@ -435,10 +435,10 @@ async function handleFlowerPoker(interaction) {
       resultMessage += "It's a tie! Your bet is returned.\n";
     } else {
       resultMessage += isWin
-        ? `You won **${betAmount}** Turns!\n`
-        : `You lost **${betAmount}** Turns.\n`;
+        ? `You won **${betAmount}** Golds!\n`
+        : `You lost **${betAmount}** Golds.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.gold}`;
+    resultMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
   }
 
   if (replantCount > 0) {

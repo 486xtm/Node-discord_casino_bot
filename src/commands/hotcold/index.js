@@ -116,11 +116,11 @@ async function handleHotCold(interaction) {
   // Prepare result message
   const resultMessage = `The flower is **${selectedFlower.name}** ${selectedFlower.emoji} (${selectedFlower.category.toUpperCase()})\n\n` +
     (isWin 
-      ? `🎉 **Congratulations!** You won **${betAmount}** Turns!\n` +
+      ? `🎉 **Congratulations!** You won **${betAmount}** Golds!\n` +
         `You bet on **${userBet.toUpperCase()}** and won!\n`
-      : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
+      : `😔 **Too bad!** You lost **${betAmount}** Golds.\n` +
         `You bet on **${userBet.toUpperCase()}** but the flower was **${selectedFlower.category.toUpperCase()}**.\n`) +
-    `**Your Current Balance:** ${updatedUser.gold}`;
+    `**Your Current Balance:** ${updatedUser.gold} Golds`;
 
   // Send the result
   await interaction.reply({
