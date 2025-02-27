@@ -181,11 +181,11 @@ const flowerPokerCommand = {
       options: [
         {
           name: "amount",
-          description: "Amount to bet (100-100000)",
+          description: "Amount to bet (100-500000000)",
           type: 4, // INTEGER type
           required: true,
           min_value: 100,
-          max_value: 100000,
+          max_value: 500000000,
         },
       ],
     },
