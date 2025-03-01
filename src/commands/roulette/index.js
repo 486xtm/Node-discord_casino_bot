@@ -181,10 +181,10 @@ async function handleRoulette(interaction) {
     );
     resultMessage +=
       betNumber === resultNumber
-        ? `🎉 **Congratulations!** You won **${betAmount * 35}** Truns!\n` +
+        ? `🎉 **Congratulations!** You won **${betAmount * 35}** Turns!\n` +
           `You bet on number **${betNumber}** and won!\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`
-        : `😔 **Too bad!** You lost **${betAmount}** Truns.\n` +
+        : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
           `You bet on number **${betNumber}** but lost.\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`;
   } else {
@@ -194,12 +194,12 @@ async function handleRoulette(interaction) {
     );
     resultMessage +=
       betColor === resultColor
-        ? `🎉 **Congratulations!** You won **${betAmount}** Truns!\n` +
+        ? `🎉 **Congratulations!** You won **${betAmount}** Turns!\n` +
           `You bet on ${
             betColor === "red" ? "🔴" : "⚫"
           } **${betColor}** and won!\n` + 
           `**Your Current Balance:** ${updatedUser.casinoTurn}`
-        : `😔 **Too bad!** You lost **${betAmount}** Truns.\n` +
+        : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
           `You bet on ${
             betColor === "red" ? "🔴" : "⚫"
           } **${betColor}** but lost.\n` +
