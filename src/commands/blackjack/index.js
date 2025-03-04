@@ -201,7 +201,7 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(playerHand)} (Total: 21)\n` +
               `**Dealer's Hand:** ${formatHand(
                 dealerHand
-              )} (Total: ${dealerTotal})\n\n`,
+              )} (Total: ${dealerTotal})\n\n` + `🎉 **Congratulations!** You won!\n`,
             color: 0x00ff00, // Green for win
             timestamp: new Date(),
             footer: {
@@ -211,7 +211,7 @@ async function handleBlackjack(interaction) {
           },
         ],
       });
-      resultMessage = `🎉 **Congratulations!** You got **${winAmount}** Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
+      resultMessage = `You won **${winAmount}** Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
       await interaction.followUp(balanceCheck(resultMessage));
 
       return;
@@ -233,7 +233,7 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(
                 playerHand
               )} (Total: ${playerTotal})\n` +
-              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n`,
+              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n` + `😔 **Dealer has Blackjack!** You lost!\n`,
             color: 0xff0000, // Red for loss
             timestamp: new Date(),
             footer: {
@@ -244,7 +244,7 @@ async function handleBlackjack(interaction) {
         ],
       });
       resultMessage =
-        `😔 **Dealer has Blackjack!** You lost **${betAmount}** Turns.\n` +
+        `You lost **${betAmount}** Turns.\n` +
         `**Current Balance:** ${updatedUser.casinoTurn}`;
       await interaction.followUp(balanceCheck(resultMessage));
 
@@ -355,7 +355,7 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` + ` 😔 Bust! You lost!`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -366,7 +366,7 @@ async function handleBlackjack(interaction) {
             ],
             components: [],
           });
-          resultMessage = `Bust! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `You lost ${gameState.betAmount} Turns\n**Current Balance:** ${updatedUser.casinoTurn}`;
           await interaction.followUp(balanceCheck(resultMessage));
           return;
         } else {
@@ -449,7 +449,7 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` + `😔 Bust after Double Down! You lost!\n`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -460,7 +460,7 @@ async function handleBlackjack(interaction) {
             ],
             components: [],
           });
-          resultMessage = `Bust after Double Down! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `You lost ${gameState.betAmount} Turns\n**Current Balance:** ${updatedUser.casinoTurn}`;
           await interaction.followUp(balanceCheck(resultMessage));
           return;
         }
@@ -498,6 +498,7 @@ async function handleBlackjack(interaction) {
         }
 
         let resultMessage = "";
+        let balanceMessage = "";
         let color = 0xffff00; // Yellow for tie
 
         if (dealerTotal > 21) {
@@ -505,21 +506,24 @@ async function handleBlackjack(interaction) {
             gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `Dealer busts! You got ${gameState.betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Dealer busts! You won! 🎉`;
+          balanceMessage = `You won ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00; // Green for win
         } else if (playerTotal > dealerTotal) {
           const updatedUser = await updateCasinoTurn(
             gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `You win! You got ${gameState.betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Congratulation. You won!  🎉`;
+          balanceMessage = `You won ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00;
         } else if (playerTotal < dealerTotal) {
           const updatedUser = await updateCasinoTurn(
             -gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `Dealer wins! You lost ${gameState.betAmount} Turns! 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Dealer wins. You lost! 😔`;
+          balanceMessage = `You lost ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0xff0000; // Red for loss
         } else {
           resultMessage = "It's a tie! Your bet is returned.";
@@ -535,7 +539,7 @@ async function handleBlackjack(interaction) {
                 }),
               },
               title: "🎲 Blackjack - Game Result (Double Down)",
-              description: message,
+              description: message + resultMessage,
               color: color,
               timestamp: new Date(),
               footer: {
@@ -546,7 +550,7 @@ async function handleBlackjack(interaction) {
           ],
           components: [],
         });
-        await interaction.followUp(balanceCheck(resultMessage));
+        await interaction.followUp(balanceCheck(balanceMessage));
         return;
       } else if (i.customId === "stand") {
         gameState.gameEnded = true;
@@ -582,6 +586,7 @@ async function handleBlackjack(interaction) {
 
         const playerTotal = calculateHand(gameState.playerHand);
         let resultMessage = "";
+        let balanceMessage = "";
         let color = 0xffff00; // Yellow for tie
 
         if (dealerTotal > 21) {
@@ -589,21 +594,24 @@ async function handleBlackjack(interaction) {
             gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `Dealer busts! You got ${gameState.betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Dealer busts! You won! 🎉`;
+          balanceMessage = `You won ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00; // Green for win
         } else if (playerTotal > dealerTotal) {
           const updatedUser = await updateCasinoTurn(
             gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `You win! You got ${gameState.betAmount} Turns! 🎉\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Congratulation. You won! 🎉`;
+          balanceMessage = `You won ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0x00ff00;
         } else if (playerTotal < dealerTotal) {
           const updatedUser = await updateCasinoTurn(
             -gameState.betAmount,
             interaction.user.username
           );
-          resultMessage = `Dealer wins! You lost ${gameState.betAmount} Turns! 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          resultMessage = `Dealer wins. You lost! 😔`;
+          balanceMessage = `You lost ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0xff0000; // Red for loss
         } else {
           resultMessage = "It's a tie! Your bet is returned.";
@@ -619,7 +627,7 @@ async function handleBlackjack(interaction) {
                 }),
               },
               title: "🎲 Blackjack - Game Result",
-              description: message,
+              description: message + resultMessage,
               color: color,
               timestamp: new Date(),
               footer: {
@@ -631,7 +639,7 @@ async function handleBlackjack(interaction) {
           components: [],
         });
 
-        await interaction.followUp(balanceCheck(resultMessage));
+        await interaction.followUp(balanceCheck(balanceMessage));
         return;
       }
     });
