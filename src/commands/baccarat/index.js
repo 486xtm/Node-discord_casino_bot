@@ -175,8 +175,14 @@ async function handleBaccarat(interaction) {
     color = 0xff0000;
   } else {
     result = "🤝 It's a tie! ";
-    winnings = betType === "tie" ? betAmount * 8 : -betAmount;
-    color = 0xffff00;
+    if (betType != "tie") {
+      winnings = 0;
+      color = 0xffff00;
+      result += "Your bet is returned.";
+    } else {
+      winnings = betType === "tie" ? betAmount * 8 : -betAmount;
+      color = 0xffff00;
+    }
   }
 
   const updatedUser = await updateCasinoTurn(
@@ -208,11 +214,12 @@ async function handleBaccarat(interaction) {
     ],
   });
 
-  const resultMessage =
-    `${result}You ${winnings >= 0 ? "won" : "lost"} ${Math.abs(
-      winnings
-    )} Turns.\n` + `**🎮 Current Balance:** ${updatedUser.casinoTurn}`;
-  await interaction.followUp(balanceCheck(resultMessage));
+  let balanceMessage =
+    winnings === 0
+      ? "It's a tie! Your bet is returned.\n"
+      : `You ${winnings >= 0 ? "won" : "lost"} ${Math.abs(winnings)} Turns.\n`;
+  balanceMessage += `**Current Balance:** ${updatedUser.casinoTurn}`;
+  await interaction.followUp(balanceCheck(balanceMessage));
 }
 
 module.exports = {
