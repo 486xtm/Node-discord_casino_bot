@@ -75,7 +75,7 @@ client.on("interactionCreate", async (interaction) => {
         interaction.channelId !== gameChannels[commandName]
       ) {
         await interaction.reply({
-          content: `You can only play ${commandName} in the #${commandName} channel!`,
+          content: `You can only play ${commandName} in the ***#${commandName}*** channel!`,
           ephemeral: true,
         });
         return;

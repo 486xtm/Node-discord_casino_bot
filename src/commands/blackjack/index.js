@@ -201,7 +201,8 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(playerHand)} (Total: 21)\n` +
               `**Dealer's Hand:** ${formatHand(
                 dealerHand
-              )} (Total: ${dealerTotal})\n\n` + `🎉 **Congratulations!** You won!\n`,
+              )} (Total: ${dealerTotal})\n\n` +
+              `🎉 **Congratulations!** You won!\n`,
             color: 0x00ff00, // Green for win
             timestamp: new Date(),
             footer: {
@@ -233,7 +234,8 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(
                 playerHand
               )} (Total: ${playerTotal})\n` +
-              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n` + `😔 **Dealer has Blackjack!** You lost!\n`,
+              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n` +
+              `😔 **Dealer has Blackjack!** You lost!\n`,
             color: 0xff0000, // Red for loss
             timestamp: new Date(),
             footer: {
@@ -355,7 +357,8 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` + ` 😔 Bust! You lost!`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
+                  ` 😔 Bust! You lost!`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -449,7 +452,8 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` + `😔 Bust after Double Down! You lost!\n`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
+                  `😔 Bust after Double Down! You lost!\n`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -526,7 +530,12 @@ async function handleBlackjack(interaction) {
           balanceMessage = `You lost ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0xff0000; // Red for loss
         } else {
-          resultMessage = "It's a tie! Your bet is returned.";
+          const updatedUser = await updateCasinoTurn(
+            0,
+            interaction.user.username
+          );
+          resultMessage = "It's a tie! 🤝";
+          balanceMessage = `Your bet is returned.\n**Current Balance:** ${updatedUser.casinoTurn}`;
         }
 
         await i.update({
@@ -614,7 +623,12 @@ async function handleBlackjack(interaction) {
           balanceMessage = `You lost ${gameState.betAmount} Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
           color = 0xff0000; // Red for loss
         } else {
-          resultMessage = "It's a tie! Your bet is returned.";
+          const updatedUser = await updateCasinoTurn(
+            0,
+            interaction.user.username
+          );
+          resultMessage = "It's a tie! 🤝";
+          balanceMessage = `Your bet is returned.\n**Current Balance:** ${updatedUser.casinoTurn}`;
         }
 
         await i.update({
@@ -658,7 +672,11 @@ async function handleBlackjack(interaction) {
                 icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
               },
               title: "🎲 Blackjack - Timeout",
-              description: `⏰ Game timed out!\n\n😔 You lost ${Math.floor(gameState.betAmount / 2)} (half of bet amount) Turns.\n**Current Balance:** ${updatedUser.casinoTurn}\n\n💡 Type \`/blackjack play\` to start a new game!`,
+              description: `⏰ Game timed out!\n\n😔 You lost ${Math.floor(
+                gameState.betAmount / 2
+              )} (half of bet amount) Turns.\n**Current Balance:** ${
+                updatedUser.casinoTurn
+              }\n\n💡 Type \`/blackjack play\` to start a new game!`,
               color: 0xff0000,
               timestamp: new Date(),
               footer: {
