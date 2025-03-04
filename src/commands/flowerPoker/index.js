@@ -285,6 +285,7 @@ async function handleFlowerPoker(interaction) {
 
   // Player plants first
   let resultMessage = "";
+  let balanceMessage = "";
   let isWin = false;
   let istie = false;
   
@@ -304,11 +305,11 @@ async function handleFlowerPoker(interaction) {
 
     if (playerAutoWin) {
       isWin = true;
-      resultMessage = "You planted a White flower! 🎉 **Automatic Win!**\n\n";
+      resultMessage = "You planted a White flower! 🎉 **Automatic Win!**\n";
       gameEnded = true;
     } else if (playerAutoLose) {
       isWin = false;
-      resultMessage = "You planted a Black flower! 😔 **Automatic Loss!**\n\n";
+      resultMessage = "You planted a Black flower! 😔 **Automatic Loss!**\n";
       gameEnded = true;
     }
 
@@ -323,11 +324,11 @@ async function handleFlowerPoker(interaction) {
       if (dealerAutoWin) {
         isWin = false;
         resultMessage =
-          "Dealer planted a White flower! 😔 **Automatic Loss!**\n\n";
+          "Dealer planted a White flower! 😔 **Automatic Loss!**\n";
       } else if (dealerAutoLose) {
         isWin = true;
         resultMessage =
-          "Dealer planted a Black flower! 🎉 **Automatic Win!**\n\n";
+          "Dealer planted a Black flower! 🎉 **Automatic Win!**\n";
       } else {
         // Compare hand ranks
         playerRank = getHandRank(playerHand);
@@ -386,13 +387,13 @@ async function handleFlowerPoker(interaction) {
       dealerRank &&
       playerRank.rank === dealerRank.rank
     ) {
-      resultMessage += "It's a tie! Your bet is returned.\n";
+      balanceMessage = "It's a tie! Your bet is returned.\n";
     } else {
-      resultMessage += isWin
+      balanceMessage = isWin
         ? `You won **${betAmount}** Golds!\n`
         : `You lost **${betAmount}** Golds.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
+    balanceMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
   } else {
     playerRank = getHandRank(playerHand);
     dealerRank = getHandRank(dealerHand);
@@ -433,13 +434,13 @@ async function handleFlowerPoker(interaction) {
 
     // Add balance information
     if (playerRank && dealerRank && playerRank.rank === dealerRank.rank) {
-      resultMessage += "It's a tie! Your bet is returned.\n";
+      balanceMessage = "It's a tie! Your bet is returned.\n";
     } else {
-      resultMessage += isWin
+      balanceMessage = isWin
         ? `You won **${betAmount}** Golds!\n`
         : `You lost **${betAmount}** Golds.\n`;
     }
-    resultMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
+    balanceMessage += `**Your Current Balance:** ${updatedUser.gold} Golds`;
   }
 
   if (replantCount > 0) {
@@ -465,6 +466,7 @@ async function handleFlowerPoker(interaction) {
       },
     ],
   });
+  await interaction.followUp(balanceCheck(balanceMessage));
 }
 
 module.exports = {

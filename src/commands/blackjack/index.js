@@ -642,7 +642,7 @@ async function handleBlackjack(interaction) {
           -Math.floor(gameState.betAmount / 2),
           interaction.user.username
         );
-        await interaction.editReply({
+        await interaction.followUp({
           embeds: [
             {
               author: {
@@ -650,7 +650,7 @@ async function handleBlackjack(interaction) {
                 icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
               },
               title: "🎲 Blackjack - Timeout",
-              description: `Game timed out! Please start a new game.\n\nYou lost half of your bet.\n**Current Balance:** ${updatedUser.casinoTurn}`,
+              description: `⏰ Game timed out!\n\n😔 You lost ${Math.floor(gameState.betAmount / 2)} (half of bet amount) Turns.\n**Current Balance:** ${updatedUser.casinoTurn}\n\n💡 Type \`/blackjack play\` to start a new game!`,
               color: 0xff0000,
               timestamp: new Date(),
               footer: {

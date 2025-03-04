@@ -1,5 +1,13 @@
-const { getInfoByUserName, updateCasinoGold } = require("../../controllers/users.controller");
-const { beforeStart, insufficientBalance, hotColdHelp } = require("../../utils/embeds");
+const {
+  getInfoByUserName,
+  updateCasinoGold,
+} = require("../../controllers/users.controller");
+const {
+  beforeStart,
+  insufficientBalance,
+  balanceCheck,
+  hotColdHelp,
+} = require("../../utils/embeds");
 
 // Define the flowers and their categories
 const flowers = [
@@ -8,9 +16,12 @@ const flowers = [
   { name: "Red", category: "hot", emoji: "<:Red:1344407489940033547>" },
   { name: "Blue", category: "cold", emoji: "<:Blue:1344407480259575838>" },
   { name: "Purple", category: "cold", emoji: "<:Purple:1344407484919582720>" },
-  { name: "Assorted", category: "cold", emoji: "<:Assorted:1344407475025088574>" }
+  {
+    name: "Assorted",
+    category: "cold",
+    emoji: "<:Assorted:1344407475025088574>",
+  },
 ];
-
 
 const hotColdCommand = {
   name: "hotcold",
@@ -28,8 +39,8 @@ const hotColdCommand = {
           required: true,
           choices: [
             { name: "Hot", value: "hot" },
-            { name: "Cold", value: "cold" }
-          ]
+            { name: "Cold", value: "cold" },
+          ],
         },
         {
           name: "amount",
@@ -98,15 +109,17 @@ async function handleHotCold(interaction) {
     return await interaction.reply(beforeStart);
   }
   if (userInfo.gold < betAmount) {
-    return await interaction.reply(insufficientBalance(userInfo, betAmount, "Golds"));
+    return await interaction.reply(
+      insufficientBalance(userInfo, betAmount, "Golds")
+    );
   }
 
   const userBet = interaction.options.getString("bet").toLowerCase();
-  
+
   // Randomly select a flower
   const selectedFlower = flowers[Math.floor(Math.random() * flowers.length)];
   const isWin = userBet === selectedFlower.category;
-  
+
   // Update user's balance
   const updatedUser = await updateCasinoGold(
     isWin ? betAmount : -betAmount,
@@ -114,12 +127,20 @@ async function handleHotCold(interaction) {
   );
 
   // Prepare result message
-  const resultMessage = `The flower is **${selectedFlower.name}** ${selectedFlower.emoji} (${selectedFlower.category.toUpperCase()})\n\n` +
-    (isWin 
-      ? `🎉 **Congratulations!** You won **${betAmount}** Golds!\n` +
+  const resultMessage =
+    `The flower is **${selectedFlower.name}** ${
+      selectedFlower.emoji
+    } (${selectedFlower.category.toUpperCase()})\n\n` +
+    (isWin
+      ? `🎉 **Congratulations!** ` +
         `You bet on **${userBet.toUpperCase()}** and won!\n`
-      : `😔 **Too bad!** You lost **${betAmount}** Golds.\n` +
-        `You bet on **${userBet.toUpperCase()}** but the flower was **${selectedFlower.category.toUpperCase()}**.\n`) +
+      : `😔 **Too bad!** ` +
+        `You bet on **${userBet.toUpperCase()}** but the flower was **${selectedFlower.category.toUpperCase()}**.\n`);
+
+  const balanceMessage =
+    (isWin
+      ? `You won **${betAmount}** Golds!\n`
+      : `You lost **${betAmount}** Golds.\n`) +
     `**Your Current Balance:** ${updatedUser.gold} Golds`;
 
   // Send the result
@@ -141,6 +162,7 @@ async function handleHotCold(interaction) {
       },
     ],
   });
+  await interaction.followUp(balanceCheck(balanceMessage));
 }
 
 module.exports = {

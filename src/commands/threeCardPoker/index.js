@@ -290,7 +290,7 @@ async function handleThreeCardPoker(interaction) {
       });
       await interaction.followUp(
         balanceCheck(
-          `You folded! Lost ${betAmount} Turns.\n**Current Balance:** ${updatedUser.casinoTurn}`
+          `You lost ${betAmount} Turns.\n**Current Balance:** ${updatedUser.casinoTurn}`
         )
       );
       return;
@@ -311,7 +311,7 @@ async function handleThreeCardPoker(interaction) {
           title: "🎲 Three Card Poker - Game Over",
           description: `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
             dealerHand
-          )}`,
+          )}` + `\n\n${message}`,
           color: result === 1 ? 0x00ff00 : result === 0 ? 0xff0000 : orange,
           timestamp: new Date(),
           footer: {
@@ -323,14 +323,14 @@ async function handleThreeCardPoker(interaction) {
       components: [],
     });
     let balanceMessage =
-      `${message}\n` + `**Current Balance:** ${updatedUser.casinoTurn}`;
+      `${result === 1 ? `You won ${betAmount} Turns.` : result === 0 ? `You lost ${betAmount} Turns.` : "It's a tie"} \n` + `**Current Balance:** ${updatedUser.casinoTurn}`;
     await interaction.followUp(balanceCheck(balanceMessage));
   } catch (error) {
     const updatedUser = await updateCasinoTurn(
       -Math.floor(betAmount / 2),
       interaction.user.username
     );
-    await interaction.editReply({
+    await interaction.followUp({
       embeds: [
         {
           author: {

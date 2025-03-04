@@ -1,5 +1,13 @@
-const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
-const { beforeStart, insufficientBalance, balanceCheck, rouletteHelp } = require("../../utils/embeds");
+const {
+  getInfoByUserName,
+  updateCasinoTurn,
+} = require("../../controllers/users.controller");
+const {
+  beforeStart,
+  insufficientBalance,
+  balanceCheck,
+  rouletteHelp,
+} = require("../../utils/embeds");
 const rouletteWheel = {
   0: "green",
   1: "red",
@@ -174,37 +182,45 @@ async function handleRoulette(interaction) {
     resultColor === "red" ? "🔴" : resultColor === "black" ? "⚫" : "🟢"
   } ${resultColor} )\n\n`;
 
-  let balanceMessage = ""
+  let balanceMessage = "";
 
   if (betNumber !== null) {
     const updatedUser = await updateCasinoTurn(
       betNumber === resultNumber ? betAmount * 35 : -betAmount,
       interaction.user.username
     );
+    resultMessage +=
+      betNumber === resultNumber
+        ? `🎉 **Congratulations!** ` +
+          `You bet on number **${betNumber}** and won!\n`
+        : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
+          `You bet on number **${betNumber}** but lost.\n`;
     balanceMessage =
       betNumber === resultNumber
-        ? `🎉 **Congratulations!** You won **${betAmount * 35}** Turns!\n` +
-          `You bet on number **${betNumber}** and won!\n` +
+        ? `You won **${betAmount * 35}** Turns!\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`
-        : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
-          `You bet on number **${betNumber}** but lost.\n` +
+        : `You lost **${betAmount}** Turns.\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`;
   } else {
     const updatedUser = await updateCasinoTurn(
       betColor === resultColor ? betAmount : -betAmount,
       interaction.user.username
     );
+    resultMessage +=
+      betColor === resultColor
+        ? `🎉 **Congratulations!** ` +
+          `You bet on ${
+            betColor === "red" ? "🔴" : "⚫"
+          } **${betColor}** and won!\n`
+        : `😔 **Too bad!** ` +
+          `You bet on ${
+            betColor === "red" ? "🔴" : "⚫"
+          } **${betColor}** but lost.\n`;
     balanceMessage =
       betColor === resultColor
-        ? `🎉 **Congratulations!** You won **${betAmount}** Turns!\n` +
-          `You bet on ${
-            betColor === "red" ? "🔴" : "⚫"
-          } **${betColor}** and won!\n` + 
+        ? `You won **${betAmount}** Turns!\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`
-        : `😔 **Too bad!** You lost **${betAmount}** Turns.\n` +
-          `You bet on ${
-            betColor === "red" ? "🔴" : "⚫"
-          } **${betColor}** but lost.\n` +
+        : `You lost **${betAmount}** Turns.\n` +
           `**Your Current Balance:** ${updatedUser.casinoTurn}`;
   }
 
