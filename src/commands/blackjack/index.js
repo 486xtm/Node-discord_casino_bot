@@ -1,5 +1,10 @@
 const { formatHand } = require("../../utils/utils");
-const { beforeStart, insufficientBalance, blackjackHelp } = require("../../utils/embeds");
+const {
+  beforeStart,
+  insufficientBalance,
+  balanceCheck,
+  blackjackHelp,
+} = require("../../utils/embeds");
 const {
   getInfoByUserName,
   updateCasinoTurn,
@@ -150,6 +155,8 @@ async function handleBlackjack(interaction) {
     const playerTotal = calculateHand(playerHand);
     const dealerTotal = calculateHand(dealerHand);
 
+    let resultMessage = "";
+
     // Check for natural blackjack (21 in first 2 cards)
     if (playerTotal === 21 && dealerTotal === 21) {
       // Both have blackjack - it's a push (tie)
@@ -194,9 +201,7 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(playerHand)} (Total: 21)\n` +
               `**Dealer's Hand:** ${formatHand(
                 dealerHand
-              )} (Total: ${dealerTotal})\n\n` +
-              `🎉 **Blackjack!** You won **${winAmount}** Turns!\n` +
-              `**Current Balance:** ${updatedUser.casinoTurn}`,
+              )} (Total: ${dealerTotal})\n\n`,
             color: 0x00ff00, // Green for win
             timestamp: new Date(),
             footer: {
@@ -206,6 +211,9 @@ async function handleBlackjack(interaction) {
           },
         ],
       });
+      resultMessage = `🎉 **Congratulations!** You got **${winAmount}** Turns!\n**Current Balance:** ${updatedUser.casinoTurn}`;
+      await interaction.followUp(balanceCheck(resultMessage));
+
       return;
     } else if (dealerTotal === 21) {
       // Dealer has natural blackjack - player loses
@@ -225,9 +233,7 @@ async function handleBlackjack(interaction) {
               `**Your Hand:** ${formatHand(
                 playerHand
               )} (Total: ${playerTotal})\n` +
-              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n` +
-              `😔 **Dealer has Blackjack!** You lost **${betAmount}** Turns.\n` +
-              `**Current Balance:** ${updatedUser.casinoTurn}`,
+              `**Dealer's Hand:** ${formatHand(dealerHand)} (Total: 21)\n\n`,
             color: 0xff0000, // Red for loss
             timestamp: new Date(),
             footer: {
@@ -237,6 +243,11 @@ async function handleBlackjack(interaction) {
           },
         ],
       });
+      resultMessage =
+        `😔 **Dealer has Blackjack!** You lost **${betAmount}** Turns.\n` +
+        `**Current Balance:** ${updatedUser.casinoTurn}`;
+      await interaction.followUp(balanceCheck(resultMessage));
+
       return;
     }
 
@@ -344,8 +355,7 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
-                  `Bust! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -356,6 +366,9 @@ async function handleBlackjack(interaction) {
             ],
             components: [],
           });
+          resultMessage = `Bust! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          await interaction.followUp(balanceCheck(resultMessage));
+          return;
         } else {
           await i.update({
             embeds: [
@@ -436,8 +449,7 @@ async function handleBlackjack(interaction) {
                   )} (Total: ${playerTotal})\n` +
                   `**Dealer's Hand:** ${formatHand(
                     gameState.dealerHand
-                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n` +
-                  `Bust after Double Down! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`,
+                  )} (Total: ${calculateHand(gameState.dealerHand)})\n\n`,
                 color: 0xff0000,
                 timestamp: new Date(),
                 footer: {
@@ -448,6 +460,8 @@ async function handleBlackjack(interaction) {
             ],
             components: [],
           });
+          resultMessage = `Bust after Double Down! You lost ${gameState.betAmount} Turns 😔\n**Current Balance:** ${updatedUser.casinoTurn}`;
+          await interaction.followUp(balanceCheck(resultMessage));
           return;
         }
 
@@ -521,7 +535,7 @@ async function handleBlackjack(interaction) {
                 }),
               },
               title: "🎲 Blackjack - Game Result (Double Down)",
-              description: message + resultMessage,
+              description: message,
               color: color,
               timestamp: new Date(),
               footer: {
@@ -532,6 +546,8 @@ async function handleBlackjack(interaction) {
           ],
           components: [],
         });
+        await interaction.followUp(balanceCheck(resultMessage));
+        return;
       } else if (i.customId === "stand") {
         gameState.gameEnded = true;
         collector.stop();
@@ -603,7 +619,7 @@ async function handleBlackjack(interaction) {
                 }),
               },
               title: "🎲 Blackjack - Game Result",
-              description: message + resultMessage,
+              description: message,
               color: color,
               timestamp: new Date(),
               footer: {
@@ -614,6 +630,9 @@ async function handleBlackjack(interaction) {
           ],
           components: [],
         });
+
+        await interaction.followUp(balanceCheck(resultMessage));
+        return;
       }
     });
 
@@ -641,6 +660,7 @@ async function handleBlackjack(interaction) {
             },
           ],
           components: [],
+          ephemeral: true,
         });
       }
     });

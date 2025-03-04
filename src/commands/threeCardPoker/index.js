@@ -3,6 +3,7 @@ const {
   beforeStart,
   insufficientBalance,
   threeCardPokerHelp,
+  balanceCheck,
 } = require("../../utils/embeds");
 const {
   getInfoByUserName,
@@ -276,9 +277,7 @@ async function handleThreeCardPoker(interaction) {
               icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
             },
             title: "🎲 Three Card Poker - Game Over",
-            description:
-              `You folded! 😔 Dealer wins by default.\n` +
-              `**Current Balance:** ${updatedUser.casinoTurn}`,
+            description: `You folded! 😔 Dealer wins by default.`,
             color: 0xff0000,
             timestamp: new Date(),
             footer: {
@@ -289,6 +288,11 @@ async function handleThreeCardPoker(interaction) {
         ],
         components: [],
       });
+      await interaction.followUp(
+        balanceCheck(
+          `You folded! Lost ${betAmount} Turns.\n**Current Balance:** ${updatedUser.casinoTurn}`
+        )
+      );
       return;
     }
 
@@ -305,11 +309,9 @@ async function handleThreeCardPoker(interaction) {
             icon_url: interaction.user.displayAvatarURL({ dynamic: true }),
           },
           title: "🎲 Three Card Poker - Game Over",
-          description:
-            `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
-              dealerHand
-            )}\n\n${message}\n` +
-            `**Current Balance:** ${updatedUser.casinoTurn}`,
+          description: `Your hand: ${playerHandStr}\nDealer's hand: ${formatHand(
+            dealerHand
+          )}`,
           color: result === 1 ? 0x00ff00 : result === 0 ? 0xff0000 : orange,
           timestamp: new Date(),
           footer: {
@@ -320,6 +322,9 @@ async function handleThreeCardPoker(interaction) {
       ],
       components: [],
     });
+    let balanceMessage =
+      `${message}\n` + `**Current Balance:** ${updatedUser.casinoTurn}`;
+    await interaction.followUp(balanceCheck(balanceMessage));
   } catch (error) {
     const updatedUser = await updateCasinoTurn(
       -Math.floor(betAmount / 2),

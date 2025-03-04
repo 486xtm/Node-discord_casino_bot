@@ -46,6 +46,15 @@ const insufficientBalance = (userInfo, betAmount, type = "Turns") => {
       ephemeral: true,
     };
 }
+const balanceCheck = (msg) => {
+  return {
+    embeds: [{
+      description: msg,
+      color: 0xfadc5d,
+    }],
+    ephemeral: true
+  };
+};
 const helpEmbed = {
   embeds: [{
     color: 0x0099ff,
@@ -265,6 +274,7 @@ module.exports = {
   helpEmbed,
   beforeStart,
   insufficientBalance,
+  balanceCheck,
   baccaratHelp,
   blackjackHelp,
   rouletteHelp,

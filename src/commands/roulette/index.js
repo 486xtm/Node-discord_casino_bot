@@ -1,5 +1,5 @@
 const { getInfoByUserName, updateCasinoTurn } = require("../../controllers/users.controller");
-const { beforeStart, insufficientBalance , rouletteHelp } = require("../../utils/embeds");
+const { beforeStart, insufficientBalance, balanceCheck, rouletteHelp } = require("../../utils/embeds");
 const rouletteWheel = {
   0: "green",
   1: "red",
@@ -174,12 +174,14 @@ async function handleRoulette(interaction) {
     resultColor === "red" ? "🔴" : resultColor === "black" ? "⚫" : "🟢"
   } ${resultColor} )\n\n`;
 
+  let balanceMessage = ""
+
   if (betNumber !== null) {
     const updatedUser = await updateCasinoTurn(
       betNumber === resultNumber ? betAmount * 35 : -betAmount,
       interaction.user.username
     );
-    resultMessage +=
+    balanceMessage =
       betNumber === resultNumber
         ? `🎉 **Congratulations!** You won **${betAmount * 35}** Turns!\n` +
           `You bet on number **${betNumber}** and won!\n` +
@@ -192,7 +194,7 @@ async function handleRoulette(interaction) {
       betColor === resultColor ? betAmount : -betAmount,
       interaction.user.username
     );
-    resultMessage +=
+    balanceMessage =
       betColor === resultColor
         ? `🎉 **Congratulations!** You won **${betAmount}** Turns!\n` +
           `You bet on ${
@@ -224,6 +226,7 @@ async function handleRoulette(interaction) {
       },
     ],
   });
+  await interaction.followUp(balanceCheck(balanceMessage));
 }
 
 module.exports = {
